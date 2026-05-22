@@ -4,7 +4,7 @@
   --background: #0d0d12;
   --foreground: #ffffff;
   --gradient-top: #0d0d12;
-  --gradient-bottom: #7289a5;
+  --gradient-bottom: #003b8c;
 }
 
 @theme inline {
@@ -22,11 +22,21 @@ body {
 
 .hero-section {
   --gradient-top: #0d0d12;
-  --gradient-bottom: #7289a5;
+  --gradient-bottom: #003b8c;
 }
 
 .hero-word {
   transform: translateY(100%);
+}
+
+.hero-copy-reveal-layer {
+  opacity: 0;
+  transform: translateY(2rem);
+}
+
+.hero-word-reveal {
+  transform: translateY(110%);
+  opacity: 0;
 }
 
 .hero-header-item {
@@ -35,4 +45,44 @@ body {
 
 .font-serif {
   font-family: var(--font-instrument-serif), "Times New Roman", serif;
+}
+
+.hero-copy-inner {
+  width: 100%;
+  max-width: 1100px;
+}
+
+.hero-word-mask {
+  overflow: hidden;
+  line-height: 1.05;
+}
+
+.hero-display-line {
+  width: 100%;
+  margin: 0;
+  font-family: var(--font-instrument-serif), "Times New Roman", serif;
+  font-size: 36px;
+  line-height: 0.98;
+  letter-spacing: -0.04em;
+  font-weight: 400;
+}
+
+@media (min-width: 768px) {
+  .hero-display-line {
+    font-size: 60px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-display-line {
+    font-size: 72px;
+  }
+}
+
+.hero-intro-line {
+  color: #ffffff;
+}
+
+.hero-reveal-line {
+  color: #0c1018;
 }
