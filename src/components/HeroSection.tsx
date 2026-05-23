@@ -29,7 +29,7 @@ const HERO_LINES_REVEAL = [
 ];
 
 const GRADIENT_START = {
-  top: "#0D0D12",
+  top: "#003B8C",
   bottom: "#003B8C",
 };
 
@@ -314,7 +314,7 @@ export default function HeroSection() {
         <div className="pointer-events-auto px-8 pb-10 md:px-12 lg:px-16">
           <a
             href="#work"
-            className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-6 py-3 text-sm text-white backdrop-blur-sm transition-colors duration-300 hover:bg-white/20"
+            className="site-button hero-cta-button border border-solid border-white bg-transparent"
           >
             Our work
           </a>

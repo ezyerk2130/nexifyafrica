@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0d0d12;
+  --background: #003b8c;
   --foreground: #ffffff;
-  --gradient-top: #0d0d12;
+  --gradient-top: #003b8c;
   --gradient-bottom: #003b8c;
 }
 
@@ -21,7 +21,7 @@ body {
 }
 
 .hero-section {
-  --gradient-top: #0d0d12;
+  --gradient-top: #003b8c;
   --gradient-bottom: #003b8c;
 }
 
@@ -85,4 +85,54 @@ body {
 
 .hero-reveal-line {
   color: #0c1018;
+}
+
+.site-button {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  box-sizing: border-box;
+  border: 1px solid #ffffff;
+  background-color: transparent;
+  padding: 0.625rem 1.5rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: #ffffff;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    color 0.3s ease,
+    background-color 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.site-button:hover,
+.site-button:active,
+.site-button:focus-visible {
+  border: 1px solid #ffffff;
+  background-color: #ffffff;
+  color: #003b8c;
+  outline: none;
+}
+
+.hero-cta-button {
+  width: 210px;
+  justify-content: center;
+}
+
+.footer-wordmark-wrap {
+  container-type: inline-size;
+  width: 100%;
+}
+
+.footer-wordmark {
+  width: 100%;
+}
+
+.footer-wordmark-text {
+  display: inline-block;
+  font-weight: 700;
+  line-height: 0.88;
+  letter-spacing: -0.04em;
+  white-space: nowrap;
 }

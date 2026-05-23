@@ -28,8 +28,12 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${geistSans.variable} ${instrumentSerif.variable} h-full scroll-smooth antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full bg-[#0D0D12] font-sans text-white">
+      <body
+        className="min-h-full bg-[#003B8C] font-sans text-white"
+        suppressHydrationWarning
+      >
         {children}
       </body>
     </html>

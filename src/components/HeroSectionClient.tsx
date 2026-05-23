@@ -8,7 +8,7 @@ const HeroSection = dynamic(() => import("@/components/HeroSection"), {
     <div
       className="h-screen w-full"
       style={{
-        background: "linear-gradient(180deg, #0D0D12 0%, #003B8C 100%)",
+        background: "#003B8C",
       }}
     />
   ),
