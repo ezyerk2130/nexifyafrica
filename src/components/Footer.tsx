@@ -4,12 +4,12 @@ import Image from "next/image";
 import { useEffect, useRef } from "react";
 
 const FOOTER_NAV = [
-  { label: "Home", href: "#" },
-  { label: "Manifesto", href: "#manifesto" },
-  { label: "Team", href: "#team" },
-  { label: "Case Studies", href: "#work" },
-  { label: "Careers", href: "#careers" },
-  { label: "Contact", href: "#contact" },
+  { label: "Home", href: "/" },
+  { label: "Manifesto", href: "/#manifesto" },
+  { label: "Team", href: "/#team" },
+  { label: "Case Studies", href: "/case-studies" },
+  { label: "Careers", href: "/#careers" },
+  { label: "Contact", href: "/#contact" },
 ] as const;
 
 const LEGAL_LINKS = [
@@ -80,7 +80,9 @@ function FooterWordmark() {
         ? new ResizeObserver(scheduleFit)
         : null;
 
-    resizeObserver?.observe(container);
+    if (container) {
+      resizeObserver?.observe(container);
+    }
     window.addEventListener("resize", scheduleFit);
     window.visualViewport?.addEventListener("resize", scheduleFit);
     document.fonts?.ready.then(scheduleFit).catch(() => undefined);

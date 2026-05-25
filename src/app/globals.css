@@ -38,6 +38,16 @@ h6 {
   transform: translateY(100%);
 }
 
+.reveal-word,
+.reveal-word-subtitle {
+  transform: translateY(100%);
+}
+
+.case-studies-title {
+  font-family: var(--font-polymath-display), system-ui, sans-serif;
+  font-weight: 400;
+}
+
 .hero-copy-reveal-layer {
   opacity: 0;
   transform: translateY(2rem);
@@ -129,6 +139,23 @@ h6 {
   outline: none;
 }
 
+.site-button--blue {
+  border-color: #003b8c;
+  color: #003b8c;
+}
+
+.site-button--blue:hover,
+.site-button--blue:active,
+.site-button--blue:focus-visible {
+  border-color: #003b8c;
+  background-color: #003b8c;
+  color: #ffffff;
+}
+
+.case-study-card-title {
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+
 .hero-cta-button {
   width: 210px;
   justify-content: center;
@@ -150,4 +177,25 @@ h6 {
   line-height: 0.88;
   letter-spacing: -0.04em;
   white-space: nowrap;
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
 }

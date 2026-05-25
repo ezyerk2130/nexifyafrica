@@ -3,16 +3,9 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import SiteNav from "@/components/SiteNav";
 
 gsap.registerPlugin(ScrollTrigger);
-
-const NAV_LINKS = [
-  { label: "Home", href: "#" },
-  { label: "Manifesto", href: "#manifesto" },
-  { label: "Team", href: "#team" },
-  { label: "Case Studies", href: "#work" },
-  { label: "Careers", href: "#careers" },
-] as const;
 
 const HERO_LINES = [
   "A Force For Progress in Tech",
@@ -294,50 +287,7 @@ export default function HeroSection() {
       </div>
 
       <div ref={chromeRef} className="relative z-10 flex h-full flex-col pointer-events-none">
-        <header className="pointer-events-auto flex items-center justify-between px-6 pt-6 sm:px-8 sm:pt-8 lg:px-16 lg:pt-10">
-          <a
-            href="#"
-            className="hero-header-item will-change-[transform,opacity] text-sm font-semibold tracking-[0.2em] text-white uppercase lg:text-base"
-          >
-            NEXIFY AFRICA
-          </a>
-
-          <nav className="hero-header-item will-change-[transform,opacity] hidden items-center gap-6 text-sm text-white/90 lg:flex lg:gap-8">
-            {NAV_LINKS.map((item) => (
-              <a
-                key={item.label}
-                href={item.href}
-                className="transition-opacity duration-300 hover:opacity-60"
-              >
-                {item.label}
-              </a>
-            ))}
-            <span className="h-4 w-px bg-white/30" aria-hidden="true" />
-            <a
-              href="#contact"
-              className="transition-opacity duration-300 hover:opacity-60"
-            >
-              Contact
-            </a>
-          </nav>
-
-          <div className="hero-header-item will-change-[transform,opacity] flex items-center gap-5 lg:hidden">
-            <a
-              href="#contact"
-              className="text-sm text-white transition-opacity duration-300 hover:opacity-60"
-            >
-              Contact
-            </a>
-            <button
-              type="button"
-              className="flex flex-col justify-center gap-[7px] p-1"
-              aria-label="Open menu"
-            >
-              <span className="block h-px w-6 bg-white" aria-hidden="true" />
-              <span className="block h-px w-6 bg-white" aria-hidden="true" />
-            </button>
-          </div>
-        </header>
+        <SiteNav animate className="pointer-events-auto" />
 
         <div className="flex-1" aria-hidden="true" />
 
