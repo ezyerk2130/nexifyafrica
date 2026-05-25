@@ -8,7 +8,7 @@ export default function NextSection() {
         <p className="mb-4 text-sm tracking-[0.2em] text-neutral-500 uppercase">
           Selected Work
         </p>
-        <h2 className="font-serif text-4xl leading-tight text-neutral-900 md:text-5xl">
+        <h2 className="text-4xl leading-tight text-neutral-900 md:text-5xl">
           Scroll continues seamlessly once the hero unpins.
         </h2>
         <p className="mt-6 text-lg leading-relaxed text-neutral-600">

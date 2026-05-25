@@ -6,20 +6,17 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const NAV_ITEMS = [
-  "Work",
-  "Approach",
-  "Services",
-  "News",
-  "About",
-  "Join",
-  "Contact",
+const NAV_LINKS = [
+  { label: "Home", href: "#" },
+  { label: "Manifesto", href: "#manifesto" },
+  { label: "Team", href: "#team" },
+  { label: "Case Studies", href: "#work" },
+  { label: "Careers", href: "#careers" },
 ] as const;
 
 const HERO_LINES = [
-  "New Genre is a global design",
-  "& technology studio",
-  "accelerating tomorrow's ideas.",
+  "A Force For Progress in Tech",
+  "Across Africa",
 ];
 
 const HERO_LINES_REVEAL = [
@@ -72,7 +69,7 @@ function HeroLine({
 }
 
 const HERO_COPY_LAYER_CLASS =
-  "hero-copy-layer pointer-events-none absolute inset-0 flex w-full items-center justify-center px-6";
+  "hero-copy-layer pointer-events-none absolute inset-0 flex w-full items-center justify-center px-6 sm:px-8 lg:justify-start lg:px-16";
 
 export default function HeroSection() {
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -96,6 +93,7 @@ export default function HeroSection() {
 
     const words = copy.querySelectorAll<HTMLElement>(".hero-word");
     const revealWords = copyReveal.querySelectorAll<HTMLElement>(".hero-word-reveal");
+    const revealLines = copyReveal.querySelectorAll<HTMLElement>(".hero-reveal-line");
     const headerItems = section.querySelectorAll<HTMLElement>(".hero-header-item");
 
     gsap.set(section, {
@@ -104,7 +102,8 @@ export default function HeroSection() {
     });
 
     gsap.set(copyReveal, { opacity: 0, y: 32 });
-    gsap.set(revealWords, { y: "110%", opacity: 0 });
+    gsap.set(revealWords, { y: "100%" });
+    gsap.set(revealLines, { color: "#ffffff" });
     gsap.set(whiteOverlay, { opacity: 0 });
 
     const ctx = gsap.context(() => {
@@ -113,7 +112,7 @@ export default function HeroSection() {
       loadTl.fromTo(
         words,
         { y: "100%" },
-        { y: "0%", duration: 1.2, stagger: 0.05 },
+        { y: "0%", duration: 1.2, stagger: 0.05, ease: "power4.out" },
         0,
       );
 
@@ -123,6 +122,28 @@ export default function HeroSection() {
         { opacity: 1, y: 0, duration: 1.2 },
         0,
       );
+
+      const revealWordAnimation = {
+        y: "0%",
+        duration: 1.2,
+        stagger: 0.05,
+        ease: "power4.out",
+      };
+
+      let revealWordsPlayed = false;
+
+      const playRevealWords = () => {
+        if (revealWordsPlayed) return;
+        revealWordsPlayed = true;
+        gsap.killTweensOf(revealWords);
+        gsap.fromTo(revealWords, { y: "100%" }, revealWordAnimation);
+      };
+
+      const resetRevealWords = () => {
+        revealWordsPlayed = false;
+        gsap.killTweensOf(revealWords);
+        gsap.set(revealWords, { y: "100%" });
+      };
 
       const scrollTl = gsap.timeline({
         scrollTrigger: {
@@ -134,6 +155,13 @@ export default function HeroSection() {
           scrub: 1,
           anticipatePin: 1,
           invalidateOnRefresh: true,
+          onUpdate: (self) => {
+            if (self.progress > 0.01) {
+              playRevealWords();
+            } else {
+              resetRevealWords();
+            }
+          },
         },
       });
 
@@ -162,22 +190,10 @@ export default function HeroSection() {
         {
           opacity: 1,
           y: 0,
-          duration: 0.35,
+          duration: 0.15,
           ease: "power1.inOut",
         },
         0,
-      );
-
-      scrollTl.to(
-        revealWords,
-        {
-          y: "0%",
-          opacity: 1,
-          duration: 0.22,
-          stagger: 0.006,
-          ease: "power3.out",
-        },
-        0.02,
       );
 
       scrollTl.to(
@@ -185,10 +201,10 @@ export default function HeroSection() {
         {
           y: -24,
           opacity: 0,
-          duration: 0.3,
+          duration: 0.2,
           ease: "power1.inOut",
         },
-        0,
+        0.1,
       );
 
       scrollTl.to(
@@ -198,16 +214,27 @@ export default function HeroSection() {
           "--gradient-bottom": GRADIENT_END.bottom,
           ease: "power1.inOut",
         },
-        0.32,
+        0.5,
       );
 
       scrollTl.to(
         whiteOverlay,
         {
           opacity: 1,
+          duration: 0.2,
           ease: "power1.inOut",
         },
-        0.32,
+        0.5,
+      );
+
+      scrollTl.to(
+        revealLines,
+        {
+          color: "#0c1018",
+          duration: 0.15,
+          ease: "power1.inOut",
+        },
+        0.5,
       );
     }, wrapper);
 
@@ -236,7 +263,7 @@ export default function HeroSection() {
 
       <div
         ref={copyRef}
-        className={`${HERO_COPY_LAYER_CLASS} z-[2] opacity-100 will-change-[transform,opacity]`}
+        className={`${HERO_COPY_LAYER_CLASS} z-[4] opacity-100 will-change-[transform,opacity]`}
       >
         <div className="hero-copy-inner">
           {HERO_LINES.map((line) => (
@@ -252,7 +279,7 @@ export default function HeroSection() {
 
       <div
         ref={copyRevealRef}
-        className={`${HERO_COPY_LAYER_CLASS} hero-copy-reveal-layer z-[3] translate-y-8 opacity-0`}
+        className={`${HERO_COPY_LAYER_CLASS} hero-copy-reveal-layer z-[5] translate-y-8 opacity-0`}
       >
         <div className="hero-copy-inner">
           {HERO_LINES_REVEAL.map((line) => (
@@ -272,23 +299,26 @@ export default function HeroSection() {
             href="#"
             className="hero-header-item will-change-[transform,opacity] text-sm font-semibold tracking-[0.2em] text-white uppercase lg:text-base"
           >
-            NEW GENRE
+            NEXIFY AFRICA
           </a>
 
           <nav className="hero-header-item will-change-[transform,opacity] hidden items-center gap-6 text-sm text-white/90 lg:flex lg:gap-8">
-            {NAV_ITEMS.map((item, index) => (
-              <span key={item} className="flex items-center gap-6 lg:gap-8">
-                {index === 5 && (
-                  <span className="h-4 w-px bg-white/30" aria-hidden="true" />
-                )}
-                <a
-                  href={`#${item.toLowerCase()}`}
-                  className="transition-opacity duration-300 hover:opacity-60"
-                >
-                  {item}
-                </a>
-              </span>
+            {NAV_LINKS.map((item) => (
+              <a
+                key={item.label}
+                href={item.href}
+                className="transition-opacity duration-300 hover:opacity-60"
+              >
+                {item.label}
+              </a>
             ))}
+            <span className="h-4 w-px bg-white/30" aria-hidden="true" />
+            <a
+              href="#contact"
+              className="transition-opacity duration-300 hover:opacity-60"
+            >
+              Contact
+            </a>
           </nav>
 
           <div className="hero-header-item will-change-[transform,opacity] flex items-center gap-5 lg:hidden">
@@ -311,7 +341,7 @@ export default function HeroSection() {
 
         <div className="flex-1" aria-hidden="true" />
 
-        <div className="pointer-events-auto px-8 pb-10 md:px-12 lg:px-16">
+        <div className="pointer-events-auto px-6 pb-10 sm:px-8 lg:px-16">
           <a
             href="#work"
             className="site-button hero-cta-button border border-solid border-white bg-transparent"
@@ -319,18 +349,6 @@ export default function HeroSection() {
             Our work
           </a>
         </div>
-
-        <aside
-          className="pointer-events-auto absolute top-1/2 right-0 hidden -translate-y-1/2 lg:flex"
-          aria-label="Awwards Site of the Day"
-        >
-          <div className="flex flex-col items-center gap-3 bg-black px-3 py-6 text-white">
-            <span className="text-lg font-bold">W.</span>
-            <span className="text-[10px] tracking-[0.15em] uppercase [writing-mode:vertical-rl]">
-              Site of the Day
-            </span>
-          </div>
-        </aside>
       </div>
     </section>
     </div>
