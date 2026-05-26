@@ -1,22 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef } from "react";
-
-const FOOTER_NAV = [
-  { label: "Home", href: "/" },
-  { label: "Manifesto", href: "/#manifesto" },
-  { label: "Team", href: "/#team" },
-  { label: "Case Studies", href: "/case-studies" },
-  { label: "Careers", href: "/#careers" },
-  { label: "Contact", href: "/#contact" },
-] as const;
-
-const LEGAL_LINKS = [
-  { label: "Privacy Policy", href: "#privacy-policy" },
-  { label: "Terms of Service", href: "#terms-of-service" },
-  { label: "Cookies Settings", href: "#cookies-settings" },
-] as const;
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
+import { FOOTER_NAV } from "@/config/navigation";
 
 function AfricaLogo() {
   return (
@@ -108,28 +95,61 @@ function FooterWordmark() {
   );
 }
 
+type SubscribeStatus = "idle" | "success" | "error";
+
 export default function Footer() {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<SubscribeStatus>("idle");
+  const [message, setMessage] = useState("");
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setStatus("idle");
+    setMessage("");
+
+    const trimmed = email.trim();
+    if (!trimmed) {
+      setStatus("error");
+      setMessage("Please enter your email address.");
+      return;
+    }
+
+    const input = event.currentTarget.elements.namedItem(
+      "footer-email",
+    ) as HTMLInputElement | null;
+
+    if (input && !input.checkValidity()) {
+      setStatus("error");
+      setMessage("Please enter a valid email address.");
+      return;
+    }
+
+    setStatus("success");
+    setMessage("Thanks for subscribing. We'll be in touch soon.");
+    setEmail("");
+  };
+
   return (
     <footer className="footer bg-[#003B8C] text-white">
       <div className="footer-inner mx-auto w-full max-w-[1400px] px-6 py-12 sm:px-8 sm:py-14 lg:px-12 lg:py-16">
         <div className="footer-top flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between lg:gap-16">
           <div className="footer-brand-nav flex flex-col gap-6 sm:gap-8">
-            <a href="#" aria-label="Nexify Africa home">
+            <Link href="/" aria-label="Nexify Africa home">
               <AfricaLogo />
-            </a>
+            </Link>
 
             <nav
               className="footer-nav flex flex-wrap gap-x-5 gap-y-3 sm:gap-x-6"
               aria-label="Footer navigation"
             >
               {FOOTER_NAV.map((item) => (
-                <a
+                <Link
                   key={item.label}
                   href={item.href}
                   className="text-sm text-white transition-opacity duration-300 hover:opacity-70"
                 >
                   {item.label}
-                </a>
+                </Link>
               ))}
             </nav>
           </div>
@@ -139,16 +159,21 @@ export default function Footer() {
 
             <form
               className="footer-subscribe-form flex flex-col gap-3 sm:flex-row sm:items-stretch"
-              onSubmit={(event) => event.preventDefault()}
+              onSubmit={handleSubmit}
+              noValidate
             >
               <label htmlFor="footer-email" className="sr-only">
                 Email address
               </label>
               <input
                 id="footer-email"
+                name="footer-email"
                 type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
                 placeholder="Enter your email"
                 className="footer-input min-h-11 flex-1 border border-white bg-transparent px-4 py-2.5 text-sm text-white placeholder:text-white/70 outline-none transition-colors focus:border-white/80"
+                aria-describedby="footer-subscribe-feedback"
               />
               <button
                 type="submit"
@@ -158,14 +183,15 @@ export default function Footer() {
               </button>
             </form>
 
-            <p className="mt-3 max-w-md text-xs leading-relaxed text-white/90 sm:text-sm">
-              By subscribing you agree to with our{" "}
-              <a
-                href="#privacy-policy"
-                className="underline underline-offset-2 transition-opacity hover:opacity-70"
-              >
-                Privacy Policy
-              </a>
+            <p
+              id="footer-subscribe-feedback"
+              className={`mt-3 max-w-md text-xs leading-relaxed sm:text-sm ${
+                status === "error" ? "text-red-200" : "text-white/90"
+              }`}
+              aria-live="polite"
+            >
+              {message ||
+                "By subscribing you agree to with our Privacy Policy."}
             </p>
           </div>
         </div>
@@ -177,23 +203,8 @@ export default function Footer() {
         <div className="footer-divider my-8 h-px w-full bg-white/90 sm:my-10" />
 
         <div className="footer-bottom flex flex-col gap-4 text-xs text-white sm:flex-row sm:items-center sm:justify-between sm:text-sm">
-          <nav
-            className="footer-legal flex flex-wrap gap-x-5 gap-y-2 sm:gap-x-6"
-            aria-label="Legal links"
-          >
-            {LEGAL_LINKS.map((item) => (
-              <a
-                key={item.label}
-                href={item.href}
-                className="transition-opacity duration-300 hover:opacity-70"
-              >
-                {item.label}
-              </a>
-            ))}
-          </nav>
-
           <p className="text-white/95 sm:text-right">
-            © 2025 Nexify Africa. All rights reserved.
+            © 2026 Nexify Africa. All rights reserved.
           </p>
         </div>
       </div>

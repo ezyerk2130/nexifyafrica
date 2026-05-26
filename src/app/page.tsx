@@ -1,4 +1,4 @@
-import HeroSection from "@/components/HeroSectionClient";
+import HeroSection from "@/components/HeroSection";
 import NextSection from "@/components/NextSection";
 import Footer from "@/components/Footer";
 

@@ -1,13 +1,11 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import CaseStudiesHero from "@/components/CaseStudiesHero";
 import Footer from "@/components/Footer";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { useSmoothScroll } from "@/hooks/useSmoothScroll";
-
-gsap.registerPlugin(ScrollTrigger);
+import { gsap, ScrollTrigger } from "@/lib/gsap";
 
 const CASE_STUDIES = [
   {
@@ -38,6 +36,7 @@ const CASE_STUDIES = [
 
 export default function CaseStudiesPage() {
   const cardsSectionRef = useRef<HTMLElement>(null);
+  const prefersReducedMotion = usePrefersReducedMotion();
   useSmoothScroll(true);
 
   useEffect(() => {
@@ -46,29 +45,41 @@ export default function CaseStudiesPage() {
 
     const cards = section.querySelectorAll<HTMLElement>(".case-study-card");
 
-    gsap.set(cards, { opacity: 0, y: 48 });
+    if (prefersReducedMotion) {
+      gsap.set(cards, { opacity: 1, y: 0 });
+      return;
+    }
 
-    const ctx = gsap.context(() => {
-      ScrollTrigger.create({
-        trigger: section,
-        start: "top 82%",
-        once: true,
-        onEnter: () => {
-          gsap.to(cards, {
-            opacity: 1,
-            y: 0,
-            duration: 0.9,
-            stagger: 0.1,
-            ease: "power4.out",
-          });
-        },
-      });
-    }, section);
+    try {
+      gsap.set(cards, { opacity: 0, y: 48 });
 
-    return () => {
-      ctx.revert();
-    };
-  }, []);
+      const ctx = gsap.context(() => {
+        ScrollTrigger.create({
+          trigger: section,
+          start: "top 82%",
+          once: true,
+          onEnter: () => {
+            gsap.to(cards, {
+              opacity: 1,
+              y: 0,
+              duration: 0.9,
+              stagger: 0.1,
+              ease: "power4.out",
+            });
+          },
+        });
+      }, section);
+
+      return () => {
+        ctx.revert();
+      };
+    } catch (error) {
+      if (process.env.NODE_ENV === "development") {
+        console.warn("[CaseStudiesPage] Card animation unavailable:", error);
+      }
+      gsap.set(cards, { opacity: 1, y: 0 });
+    }
+  }, [prefersReducedMotion]);
 
   return (
     <>
@@ -83,7 +94,7 @@ export default function CaseStudiesPage() {
             {CASE_STUDIES.map((study) => (
               <article
                 key={study.client}
-                className="case-study-card flex flex-col rounded-2xl border border-neutral-200/80 bg-white p-5 sm:p-6"
+                className="case-study-card flex min-w-0 flex-col overflow-hidden rounded-2xl border border-neutral-200/80 bg-white p-5 sm:p-6"
               >
                 <div
                   className="flex aspect-[16/10] w-full items-center justify-center rounded-xl bg-neutral-100"
@@ -106,22 +117,25 @@ export default function CaseStudiesPage() {
                   {study.title}
                 </h2>
 
-                <div className="mt-auto flex items-end justify-between gap-6 pt-8">
-                  <div>
+                <div className="case-study-card-footer mt-auto flex flex-col gap-4 pt-8 lg:flex-row lg:items-end lg:justify-between lg:gap-6">
+                  <div className="min-w-0">
                     <p className="text-base leading-none font-normal tracking-[-0.04em] text-neutral-900">
                       {study.metric}
                     </p>
-                    <p className="mt-1.5 whitespace-nowrap text-sm leading-snug text-neutral-500">
+                    <p className="mt-1.5 text-sm leading-snug text-neutral-500 lg:whitespace-nowrap">
                       {study.metricLabel}
                     </p>
                   </div>
 
-                  <a
-                    href="#"
-                    className="site-button site-button--blue shrink-0"
+                  <button
+                    type="button"
+                    disabled
+                    aria-disabled="true"
+                    title="Full case study coming soon"
+                    className="site-button site-button--blue site-button--disabled w-full shrink-0 justify-center lg:w-auto"
                   >
-                    Read case
-                  </a>
+                    Coming soon
+                  </button>
                 </div>
               </article>
             ))}
