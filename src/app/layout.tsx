@@ -6,6 +6,8 @@ import "./globals.css";
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
+  style: ["normal", "italic"],
+  weight: ["400", "700"],
 });
 
 const geistSans = Geist({

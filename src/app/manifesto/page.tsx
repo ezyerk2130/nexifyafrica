@@ -1,17 +1,12 @@
 import type { Metadata } from "next";
-import ComingSoonPage from "@/components/ComingSoonPage";
+import ManifestoPage from "@/components/ManifestoPage";
 
 export const metadata: Metadata = {
   title: "Manifesto",
   description:
-    "The Nexify Africa manifesto — our vision for progress in tech across Africa.",
+    "Where did Africa's digital promise go? Read the Nexify Africa manifesto on building software that matches the continent's ambition.",
 };
 
-export default function ManifestoPage() {
-  return (
-    <ComingSoonPage
-      title="Manifesto"
-      description="Our manifesto is on its way. Check back soon."
-    />
-  );
+export default function ManifestoRoute() {
+  return <ManifestoPage />;
 }
