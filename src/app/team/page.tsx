@@ -1,16 +1,12 @@
 import type { Metadata } from "next";
-import ComingSoonPage from "@/components/ComingSoonPage";
+import TeamPage from "@/components/TeamPage";
 
 export const metadata: Metadata = {
   title: "Team",
-  description: "Meet the team behind Nexify Africa.",
+  description:
+    "The team behind Nexify Africa — a small, senior group with no hand-offs and no layers.",
 };
 
-export default function TeamPage() {
-  return (
-    <ComingSoonPage
-      title="Team"
-      description="We're introducing our team soon. Check back shortly."
-    />
-  );
+export default function TeamRoute() {
+  return <TeamPage />;
 }

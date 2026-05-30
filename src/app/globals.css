@@ -452,3 +452,166 @@ html.lenis body {
   border: none;
   border-radius: 0;
 }
+
+/* Team page — aligned with reference card-team / text-wrap-team pattern */
+.team-page {
+  --team-bg-base: #f4f6f8;
+  --team-text-strong: rgba(12, 16, 24, 0.88);
+  --team-text-medium: rgba(12, 16, 24, 0.64);
+  background-color: var(--team-bg-base);
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .team-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .team-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+.card-team {
+  --team-card-radius: 20px;
+  --team-caption-bg: #ffffff;
+  position: relative;
+  aspect-ratio: 4 / 5;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--team-card-radius);
+  background-color: transparent;
+  line-height: 0;
+}
+
+.team-card-media {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.team-card-media > span {
+  position: absolute !important;
+  inset: 0 !important;
+  display: block !important;
+  line-height: 0;
+}
+
+.image-cover {
+  z-index: 1;
+  display: block;
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  outline: none;
+  vertical-align: top;
+  transform: scale(1);
+  transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.card-team--hover .image-cover,
+.card-team:focus-within .image-cover {
+  transform: scale(1.07);
+}
+
+.text-wrap-team {
+  z-index: 2;
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  justify-content: center;
+  row-gap: 0.0625rem;
+  width: max-content;
+  min-width: 11.5rem;
+  max-width: calc(100% - 1.5rem);
+  padding: 0.375rem 2rem 0.4375rem;
+  position: absolute;
+  left: 50%;
+  bottom: 1.25rem;
+  background-color: var(--team-caption-bg);
+  border-radius: 9999px;
+  box-shadow: 0 6px 28px rgba(12, 16, 24, 0.14);
+  text-align: center;
+  pointer-events: none;
+  opacity: 1;
+  visibility: visible;
+  transform: translate3d(-50%, 0, 0);
+  animation: team-notch-float 3.2s ease-in-out infinite;
+}
+
+@keyframes team-notch-float {
+  0%,
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(-50%, -7px, 0);
+  }
+}
+
+.card-team--hover .text-wrap-team,
+.card-team:focus-within .text-wrap-team {
+  animation: team-notch-float-hover 3.2s ease-in-out infinite;
+}
+
+@keyframes team-notch-float-hover {
+  0%,
+  100% {
+    transform: translate3d(-50%, -2px, 0);
+  }
+
+  50% {
+    transform: translate3d(-50%, -9px, 0);
+  }
+}
+
+.text-small {
+  font-size: 13px;
+  line-height: 1.25;
+}
+
+.text-body-bold {
+  font-weight: 700;
+  color: var(--team-text-strong);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: normal;
+}
+
+.body-medium {
+  font-weight: 400;
+  color: var(--team-text-medium);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: normal;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .text-wrap-team {
+    animation: none;
+    transform: translate3d(-50%, 0, 0);
+  }
+
+  .image-cover {
+    transition: none;
+  }
+
+  .card-team--hover .image-cover,
+  .card-team:focus-within .image-cover {
+    transform: scale(1);
+  }
+}
+
