@@ -3,7 +3,7 @@
 import { Fragment } from "react";
 import Image from "next/image";
 import Footer from "@/components/Footer";
-import PinnedHero from "@/components/PinnedHero";
+import ManifestoHero from "@/components/ManifestoHero";
 import {
   MANIFESTO_HERO,
   MANIFESTO_SECTIONS,
@@ -108,9 +108,9 @@ export default function ManifestoPage() {
 
   return (
     <>
-      <PinnedHero lines={MANIFESTO_HERO.lines} />
+      <ManifestoHero />
 
-      <article className="manifesto-page bg-white text-neutral-900">
+      <article className="manifesto-page text-neutral-900">
         <ManifestoImage
           label="Manifesto hero image"
           src="/images/manifesto/hero-collaboration.png"
