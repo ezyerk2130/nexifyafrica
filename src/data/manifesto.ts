@@ -8,6 +8,10 @@ export type ManifestoSection = {
   label: string;
   blocks: ManifestoBlock[];
   imageAfter?: boolean;
+  imageAfterSrc?: string;
+  imageAfterAlt?: string;
+  imageAfterFit?: "cover" | "contain";
+  imageAfterObjectPosition?: string;
 };
 
 export const MANIFESTO_HERO = {
@@ -68,6 +72,9 @@ export const MANIFESTO_SECTIONS: ManifestoSection[] = [
       },
     ],
     imageAfter: true,
+    imageAfterSrc: "/images/manifesto/warehouse-tablet.png",
+    imageAfterAlt:
+      "Warehouse operator reviewing inventory and analytics on a tablet",
   },
   {
     id: "missing-pieces",

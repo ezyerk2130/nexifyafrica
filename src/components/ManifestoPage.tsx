@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment } from "react";
+import Image from "next/image";
 import Footer from "@/components/Footer";
 import PinnedHero from "@/components/PinnedHero";
 import {
@@ -13,16 +14,57 @@ import { useSmoothScroll } from "@/hooks/useSmoothScroll";
 const LAYOUT_INNER =
   "mx-auto w-full max-w-[1400px] px-6 sm:px-8 lg:px-12";
 
-function ManifestoImagePlaceholder({ label }: { label: string }) {
+const MANIFESTO_IMAGE_FRAME =
+  "manifesto-image-placeholder relative aspect-[21/9] w-full min-h-[220px] overflow-hidden sm:min-h-[300px] lg:min-h-[360px]";
+
+function ManifestoImage({
+  label,
+  src,
+  alt,
+  fit = "cover",
+  objectPosition,
+}: {
+  label: string;
+  src?: string;
+  alt?: string;
+  fit?: "cover" | "contain";
+  objectPosition?: string;
+}) {
+  const isContain = fit === "contain";
+
   return (
-    <figure className="manifesto-figure manifesto-figure-fullbleed">
+    <figure className="manifesto-figure">
       <div
-        className="manifesto-image-placeholder flex aspect-[21/9] w-full min-h-[220px] items-center justify-center bg-neutral-200 sm:min-h-[300px] lg:min-h-[360px]"
-        aria-hidden="true"
+        className={`${MANIFESTO_IMAGE_FRAME} ${
+          isContain ? "bg-neutral-100" : "bg-neutral-200"
+        }`}
       >
-        <span className="text-sm tracking-[0.12em] text-neutral-500 uppercase">
-          Image placeholder
-        </span>
+        {src ? (
+          <Image
+            src={src}
+            alt={alt ?? label}
+            fill
+            className={
+              isContain ? "object-contain" : "object-cover object-center"
+            }
+            style={
+              isContain
+                ? { objectPosition: objectPosition ?? "center 22%" }
+                : undefined
+            }
+            sizes="100vw"
+            priority={src.includes("hero-collaboration")}
+          />
+        ) : (
+          <div
+            className="flex h-full w-full items-center justify-center bg-neutral-200"
+            aria-hidden="true"
+          >
+            <span className="text-sm tracking-[0.12em] text-neutral-500 uppercase">
+              Image placeholder
+            </span>
+          </div>
+        )}
       </div>
       <figcaption className="sr-only">{label}</figcaption>
     </figure>
@@ -69,52 +111,55 @@ export default function ManifestoPage() {
       <PinnedHero lines={MANIFESTO_HERO.lines} />
 
       <article className="manifesto-page bg-white text-neutral-900">
-        <ManifestoImagePlaceholder label="Manifesto hero image" />
+        <ManifestoImage
+          label="Manifesto hero image"
+          src="/images/manifesto/hero-collaboration.png"
+          alt="Team members collaborating around a tablet in a modern office"
+        />
 
-        <div
-          className={`manifesto-content ${LAYOUT_INNER}`}
-        >
+        <div className={`manifesto-content ${LAYOUT_INNER}`}>
           <p className="manifesto-kicker">{MANIFESTO_HERO.kicker}</p>
           <p className="manifesto-lead">{MANIFESTO_HERO.lead}</p>
-
-          {MANIFESTO_SECTIONS.map((section, index) => {
-            const previousSection = index > 0 ? MANIFESTO_SECTIONS[index - 1] : null;
-            const followsImage = Boolean(previousSection?.imageAfter);
-
-            return (
-              <Fragment key={section.id}>
-                {followsImage ? (
-                  <ManifestoImagePlaceholder
-                    label={`Illustration after ${previousSection?.label}`}
-                  />
-                ) : null}
-
-                <section
-                  id={section.id}
-                  className={`manifesto-section ${followsImage ? "manifesto-section--after-image" : ""}`}
-                  aria-labelledby={`${section.id}-heading`}
-                >
-                  <ManifestoAccentLine />
-                  <h2
-                    id={`${section.id}-heading`}
-                    className="manifesto-section-label"
-                  >
-                    {section.label}
-                  </h2>
-
-                  <div className="manifesto-section-body">
-                    {section.blocks.map((block, blockIndex) => (
-                      <ManifestoBlockRenderer
-                        key={`${section.id}-${blockIndex}`}
-                        block={block}
-                      />
-                    ))}
-                  </div>
-                </section>
-              </Fragment>
-            );
-          })}
         </div>
+
+        {MANIFESTO_SECTIONS.map((section) => (
+          <Fragment key={section.id}>
+            <div className={LAYOUT_INNER}>
+              <section
+                id={section.id}
+                className="manifesto-section"
+                aria-labelledby={`${section.id}-heading`}
+              >
+                <ManifestoAccentLine />
+                <h2
+                  id={`${section.id}-heading`}
+                  className="manifesto-section-label"
+                >
+                  {section.label}
+                </h2>
+
+                <div className="manifesto-section-body">
+                  {section.blocks.map((block, blockIndex) => (
+                    <ManifestoBlockRenderer
+                      key={`${section.id}-${blockIndex}`}
+                      block={block}
+                    />
+                  ))}
+                </div>
+              </section>
+            </div>
+
+            {section.imageAfter ? (
+              <ManifestoImage
+                label={`Illustration for ${section.label}`}
+                src={section.imageAfterSrc}
+                alt={section.imageAfterAlt}
+                fit={section.imageAfterFit}
+                objectPosition={section.imageAfterObjectPosition}
+              />
+            ) : null}
+          </Fragment>
+        ))}
       </article>
 
       <Footer />
