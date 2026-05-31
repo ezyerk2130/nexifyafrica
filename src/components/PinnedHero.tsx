@@ -16,12 +16,18 @@ const GRADIENT_END = {
 };
 
 const SCROLL_EXIT = 0.06;
+const SCROLL_EXIT_END = SCROLL_EXIT + 0.18;
 const SCROLL_WHITE = 0.22;
 const REVEAL_TRIGGER = 0.36;
 const REVEAL_RESET = 0.28;
+const INTRO_WORD_REVEAL = {
+  duration: 1.2,
+  stagger: 0.05,
+  ease: "power4.out",
+} as const;
 
 const HERO_COPY_LAYER_CLASS =
-  "hero-copy-layer pointer-events-none absolute inset-0 flex w-full items-center justify-center px-6 sm:px-8 lg:justify-start lg:px-16";
+  "hero-copy-layer pointer-events-none absolute inset-0 flex w-full items-center justify-center px-6 pb-24 sm:px-8 sm:pb-0 lg:justify-start lg:px-16";
 
 function HeroLine({
   line,
@@ -146,7 +152,12 @@ export default function PinnedHero({
         loadTl.fromTo(
           words,
           { y: "100%" },
-          { y: "0%", duration: 1.2, stagger: 0.05, ease: "power4.out" },
+          {
+            y: "0%",
+            duration: INTRO_WORD_REVEAL.duration,
+            stagger: INTRO_WORD_REVEAL.stagger,
+            ease: INTRO_WORD_REVEAL.ease,
+          },
           0,
         );
 
@@ -158,6 +169,90 @@ export default function PinnedHero({
         );
 
         let revealActive = false;
+        let introAtTopShown = true;
+        let introRevealTl: gsap.core.Timeline | null = null;
+
+        const hideIntroForScroll = () => {
+          introRevealTl?.kill();
+          introRevealTl = null;
+          introAtTopShown = false;
+          gsap.set(copy, { opacity: 0, y: -24, visibility: "hidden" });
+          gsap.set(chrome, { opacity: 0, y: -12 });
+          gsap.set(words, { y: "100%" });
+          gsap.set(headerItems, { opacity: 0, y: -16 });
+          gsap.set(introLines, { color: "#ffffff" });
+        };
+
+        const showIntroInstant = () => {
+          introRevealTl?.kill();
+          introRevealTl = null;
+          introAtTopShown = true;
+          gsap.set(copy, { opacity: 1, y: 0, visibility: "visible" });
+          gsap.set(chrome, { opacity: 1, y: 0 });
+          gsap.set(words, { y: "0%" });
+          gsap.set(headerItems, { opacity: 1, y: 0 });
+          gsap.set(introLines, { color: "#ffffff" });
+        };
+
+        const playIntroReveal = () => {
+          if (introAtTopShown) return;
+
+          introRevealTl?.kill();
+          introAtTopShown = true;
+
+          gsap.set(copy, { opacity: 1, y: 0, visibility: "visible" });
+          gsap.set(chrome, { opacity: 1, y: 0 });
+          gsap.set(words, { y: "100%" });
+          gsap.set(headerItems, { opacity: 0, y: -16 });
+          gsap.set(introLines, { color: "#ffffff" });
+
+          introRevealTl = gsap.timeline({ defaults: { ease: INTRO_WORD_REVEAL.ease } });
+          introRevealTl
+            .to(
+              words,
+              {
+                y: "0%",
+                duration: INTRO_WORD_REVEAL.duration,
+                stagger: INTRO_WORD_REVEAL.stagger,
+                ease: INTRO_WORD_REVEAL.ease,
+              },
+              0,
+            )
+            .to(headerItems, { opacity: 1, y: 0, duration: INTRO_WORD_REVEAL.duration }, 0);
+        };
+
+        const updateIntroForScroll = (progress: number, direction: number) => {
+          if (direction === -1) {
+            if (progress <= 0.001) {
+              playIntroReveal();
+            } else {
+              hideIntroForScroll();
+            }
+            return;
+          }
+
+          if (progress >= SCROLL_EXIT_END) {
+            hideIntroForScroll();
+            return;
+          }
+
+          if (progress <= SCROLL_EXIT) {
+            showIntroInstant();
+            return;
+          }
+
+          introRevealTl?.kill();
+          introRevealTl = null;
+          introAtTopShown = false;
+
+          const fadeT = (progress - SCROLL_EXIT) / (SCROLL_EXIT_END - SCROLL_EXIT);
+          gsap.set(copy, {
+            opacity: 1 - fadeT,
+            y: -24 * fadeT,
+            visibility: "visible",
+          });
+          gsap.set(chrome, { opacity: 1 - fadeT, y: -12 * fadeT });
+        };
 
         const revealTl =
           copyReveal && revealWords?.length
@@ -216,6 +311,8 @@ export default function PinnedHero({
             anticipatePin: 1,
             invalidateOnRefresh: true,
             onUpdate: (self) => {
+              updateIntroForScroll(self.progress, self.direction);
+
               if (!revealTl) return;
 
               if (self.progress >= REVEAL_TRIGGER && !revealActive) {
@@ -228,20 +325,6 @@ export default function PinnedHero({
             },
           },
         });
-
-        scrollTl.to(
-          chrome,
-          { opacity: 0, y: -12, duration: 0.18, ease: "power2.inOut" },
-          SCROLL_EXIT,
-        );
-
-        scrollTl.to(
-          copy,
-          { opacity: 0, y: -24, duration: 0.18, ease: "power2.inOut" },
-          SCROLL_EXIT,
-        );
-
-        scrollTl.set(copy, { visibility: "hidden" }, SCROLL_EXIT + 0.18);
 
         scrollTl.to(
           section,
@@ -282,7 +365,7 @@ export default function PinnedHero({
       <section
         id={sectionId}
         ref={sectionRef}
-        className="hero-section relative flex h-screen w-full flex-col overflow-hidden"
+        className="hero-section relative flex w-full flex-col overflow-hidden"
         style={{
           background:
             "linear-gradient(180deg, var(--gradient-top) 0%, var(--gradient-bottom) 100%)",
@@ -341,7 +424,7 @@ export default function PinnedHero({
           <div className="flex-1" aria-hidden="true" />
 
           {cta ? (
-            <div className="pointer-events-auto px-6 pb-10 sm:px-8 lg:px-16">
+            <div className="pointer-events-auto px-6 pb-[max(2.5rem,env(safe-area-inset-bottom))] sm:px-8 sm:pb-10 lg:px-16">
               {cta}
             </div>
           ) : null}

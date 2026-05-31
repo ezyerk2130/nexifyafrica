@@ -74,7 +74,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body
-        className="min-h-full bg-[#003B8C] font-sans text-white"
+        className="min-h-full bg-[#F4F6F8] font-sans text-neutral-900"
         suppressHydrationWarning
       >
         <noscript>
