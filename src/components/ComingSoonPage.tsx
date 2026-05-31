@@ -7,15 +7,23 @@ import PinnedHero from "@/components/PinnedHero";
 type ComingSoonPageProps = {
   title: string;
   description?: string;
+  revealLines?: readonly string[];
 };
 
 export default function ComingSoonPage({
   title,
   description = "We're building this section. Check back shortly.",
+  revealLines,
 }: ComingSoonPageProps) {
+  const heroRevealLines =
+    revealLines ??
+    (description.includes(".")
+      ? description.split(/(?<=\.)\s+/).filter(Boolean)
+      : [description]);
+
   return (
     <>
-      <PinnedHero lines={[title]} />
+      <PinnedHero lines={[title]} revealLines={heroRevealLines} />
 
       <section className="bg-[#F4F6F8] text-neutral-900">
         <div className="mx-auto flex min-h-[50vh] max-w-[1400px] flex-col items-center justify-center px-6 py-24 text-center sm:px-8 lg:px-12 lg:py-32">

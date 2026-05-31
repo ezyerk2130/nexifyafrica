@@ -11,6 +11,7 @@ export default function CareersPage() {
     <ComingSoonPage
       title="Careers"
       description="Open roles and opportunities are coming soon."
+      revealLines={["Open roles and opportunities", "are coming soon."]}
     />
   );
 }
