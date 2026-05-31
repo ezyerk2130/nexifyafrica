@@ -3,7 +3,6 @@
 import Link from "next/link";
 import Footer from "@/components/Footer";
 import PinnedHero from "@/components/PinnedHero";
-import { useSmoothScroll } from "@/hooks/useSmoothScroll";
 
 type ComingSoonPageProps = {
   title: string;
@@ -14,8 +13,6 @@ export default function ComingSoonPage({
   title,
   description = "We're building this section. Check back shortly.",
 }: ComingSoonPageProps) {
-  useSmoothScroll(true);
-
   return (
     <>
       <PinnedHero lines={[title]} />

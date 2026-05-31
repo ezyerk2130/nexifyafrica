@@ -4,7 +4,6 @@ import { useEffect, useRef } from "react";
 import CaseStudiesHero from "@/components/CaseStudiesHero";
 import Footer from "@/components/Footer";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
-import { useSmoothScroll } from "@/hooks/useSmoothScroll";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 
 const CASE_STUDIES = [
@@ -37,7 +36,6 @@ const CASE_STUDIES = [
 export default function CaseStudiesPage() {
   const cardsSectionRef = useRef<HTMLElement>(null);
   const prefersReducedMotion = usePrefersReducedMotion();
-  useSmoothScroll(true);
 
   useEffect(() => {
     const section = cardsSectionRef.current;

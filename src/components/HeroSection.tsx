@@ -1,7 +1,6 @@
 "use client";
 
 import PinnedHero from "@/components/PinnedHero";
-import { useSmoothScroll } from "@/hooks/useSmoothScroll";
 
 const HERO_LINES = [
   "A Force For Progress in Tech",
@@ -15,8 +14,6 @@ const HERO_LINES_REVEAL = [
 ] as const;
 
 export default function HeroSection() {
-  useSmoothScroll(true);
-
   return (
     <PinnedHero
       sectionId="hero-section"

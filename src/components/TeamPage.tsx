@@ -10,7 +10,6 @@ import {
   type TeamMember,
 } from "@/data/team";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
-import { useSmoothScroll } from "@/hooks/useSmoothScroll";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 
 const LAYOUT_INNER =
@@ -54,7 +53,6 @@ export default function TeamPage() {
   const sectionRef = useRef<HTMLElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = usePrefersReducedMotion();
-  useSmoothScroll(true);
 
   useEffect(() => {
     const section = sectionRef.current;

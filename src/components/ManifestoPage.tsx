@@ -9,7 +9,6 @@ import {
   MANIFESTO_SECTIONS,
   type ManifestoBlock,
 } from "@/data/manifesto";
-import { useSmoothScroll } from "@/hooks/useSmoothScroll";
 
 const LAYOUT_INNER =
   "mx-auto w-full max-w-[1400px] px-6 sm:px-8 lg:px-12";
@@ -104,8 +103,6 @@ function ManifestoBlockRenderer({ block }: { block: ManifestoBlock }) {
 }
 
 export default function ManifestoPage() {
-  useSmoothScroll(true);
-
   return (
     <>
       <ManifestoHero />
