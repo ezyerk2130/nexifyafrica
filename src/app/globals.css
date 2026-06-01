@@ -695,7 +695,7 @@ html.lenis body {
   align-items: stretch;
 }
 
-@media (min-width: 640px) {
+@media (min-width: 768px) {
   .grid-features {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-column-gap: 1.25rem;
@@ -710,7 +710,7 @@ html.lenis body {
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1280px) {
   .grid-features {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     grid-column-gap: 1.5rem;
