@@ -82,7 +82,8 @@ h6 {
   .hero-word-reveal,
   .reveal-word,
   .reveal-word-subtitle,
-  .hero-header-item {
+  .hero-header-item,
+  .grid-feature-holder {
     transform: none !important;
     opacity: 1 !important;
   }
@@ -741,6 +742,7 @@ html.lenis body {
   padding: var(--card-padding);
   background-color: #ffffff;
   border: 1px solid var(--tokens--border);
+  will-change: transform, opacity;
 }
 
 .grid-feature-holder .number {
