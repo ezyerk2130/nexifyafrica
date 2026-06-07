@@ -18,10 +18,24 @@ export default async function Home() {
     getHomePage().catch(() => null),
   ]);
 
+  const heroProps = {
+    lines: homePage?.heroLines,
+    revealLines: homePage?.heroRevealLines,
+    ctaText: homePage?.heroCtaText,
+    ctaHref: homePage?.heroCtaHref,
+  };
+
   const faqProps =
     faqItems && faqItems.length > 0
-      ? { items: faqItems.map((f) => ({ id: f._id, question: f.question, answer: f.answer })) }
-      : {};
+      ? {
+          items: faqItems.map((f) => ({ id: f._id, question: f.question, answer: f.answer })),
+          headingItalic: homePage?.faqHeadingItalic,
+          heading: homePage?.faqHeading,
+        }
+      : {
+          headingItalic: homePage?.faqHeadingItalic,
+          heading: homePage?.faqHeading,
+        };
 
   const servicesProps =
     services && services.length > 0
@@ -53,7 +67,7 @@ export default async function Home() {
 
   return (
     <>
-      <HeroSection />
+      <HeroSection {...heroProps} />
       <NextSection {...principlesProps} />
       <HomeServicesSection {...servicesProps} />
       <HomeFaqSection {...faqProps} />

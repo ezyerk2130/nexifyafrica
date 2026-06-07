@@ -27,6 +27,7 @@ export type SanityCaseStudyCard = {
   cardClient: string;
   metric: string;
   metricLabel: string;
+  cardImage?: { asset: { _ref: string; _type: "reference" } };
 };
 
 export type SanityCaseStudySidebar = {
@@ -93,10 +94,23 @@ export type SanityTeamMember = {
 };
 
 export type SanityHomePage = {
-  servicesHeading: string;
+  // Hero
+  heroLines?: string[];
+  heroRevealLines?: string[];
+  heroCtaText?: string;
+  heroCtaHref?: string;
+  // Principles
   principlesHeadingBefore: string;
   principlesHeadingHighlight: string;
   principlesHeadingAfter: string;
+  // Services
+  servicesHeading: string;
+  // FAQ
+  faqHeadingItalic?: string;
+  faqHeading?: string;
+  // Case studies page
+  caseStudiesHeroLines?: string[];
+  caseStudiesRevealLines?: string[];
 };
 
 export type SanityManifestoBlock = {
@@ -154,7 +168,8 @@ const CASE_STUDY_CARD_FIELDS = `
   slug,
   cardClient,
   metric,
-  metricLabel
+  metricLabel,
+  cardImage { asset }
 `;
 
 const CASE_STUDY_SECTION_FIELDS = `
@@ -243,10 +258,18 @@ export async function getTeamMembers(): Promise<SanityTeamMember[]> {
 export async function getHomePage(): Promise<SanityHomePage | null> {
   return sanityFetch(
     `*[_type == "homePage" && _id == "homePage"][0] {
-      servicesHeading,
+      heroLines,
+      heroRevealLines,
+      heroCtaText,
+      heroCtaHref,
       principlesHeadingBefore,
       principlesHeadingHighlight,
-      principlesHeadingAfter
+      principlesHeadingAfter,
+      servicesHeading,
+      faqHeadingItalic,
+      faqHeading,
+      caseStudiesHeroLines,
+      caseStudiesRevealLines
     }`,
     {},
     ["homePage"],

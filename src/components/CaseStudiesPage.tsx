@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import CaseStudiesHero from "@/components/CaseStudiesHero";
 import Footer from "@/components/Footer";
 import { CASE_STUDY_CARDS } from "@/data/caseStudies";
@@ -12,15 +13,18 @@ type CardItem = {
   metric: string;
   metricLabel: string;
   slug?: string;
+  imageUrl?: string;
 };
 
 type Props = {
   cards?: CardItem[];
+  heroLines?: string[];
+  heroRevealLines?: string[];
 };
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 
-export default function CaseStudiesPage({ cards }: Props = {}) {
+export default function CaseStudiesPage({ cards, heroLines, heroRevealLines }: Props = {}) {
   const CARDS = cards ?? CASE_STUDY_CARDS;
   const cardsSectionRef = useRef<HTMLElement>(null);
   const prefersReducedMotion = usePrefersReducedMotion();
@@ -29,15 +33,15 @@ export default function CaseStudiesPage({ cards }: Props = {}) {
     const section = cardsSectionRef.current;
     if (!section) return;
 
-    const cards = section.querySelectorAll<HTMLElement>(".case-study-card");
+    const cardEls = section.querySelectorAll<HTMLElement>(".case-study-card");
 
     if (prefersReducedMotion) {
-      gsap.set(cards, { opacity: 1, y: 0 });
+      gsap.set(cardEls, { opacity: 1, y: 0 });
       return;
     }
 
     try {
-      gsap.set(cards, { opacity: 0, y: 48 });
+      gsap.set(cardEls, { opacity: 0, y: 48 });
 
       const ctx = gsap.context(() => {
         ScrollTrigger.create({
@@ -45,7 +49,7 @@ export default function CaseStudiesPage({ cards }: Props = {}) {
           start: "top 82%",
           once: true,
           onEnter: () => {
-            gsap.to(cards, {
+            gsap.to(cardEls, {
               opacity: 1,
               y: 0,
               duration: 0.9,
@@ -63,13 +67,13 @@ export default function CaseStudiesPage({ cards }: Props = {}) {
       if (process.env.NODE_ENV === "development") {
         console.warn("[CaseStudiesPage] Card animation unavailable:", error);
       }
-      gsap.set(cards, { opacity: 1, y: 0 });
+      gsap.set(cardEls, { opacity: 1, y: 0 });
     }
   }, [prefersReducedMotion]);
 
   return (
     <>
-      <CaseStudiesHero />
+      <CaseStudiesHero lines={heroLines} revealLines={heroRevealLines} />
 
       <section
         ref={cardsSectionRef}
@@ -82,12 +86,24 @@ export default function CaseStudiesPage({ cards }: Props = {}) {
                 key={study.client}
                 className="case-study-card flex min-w-0 flex-col overflow-hidden rounded-2xl border border-neutral-200/80 bg-white p-5 sm:p-6"
               >
-                <div
-                  className="flex aspect-[16/10] w-full items-center justify-center rounded-xl bg-neutral-100"
-                  aria-hidden="true"
-                >
-                  <span className="text-sm text-neutral-400">Case study image</span>
-                </div>
+                {study.imageUrl ? (
+                  <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl">
+                    <Image
+                      src={study.imageUrl}
+                      alt={`${study.client} case study`}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                    />
+                  </div>
+                ) : (
+                  <div
+                    className="flex aspect-[16/10] w-full items-center justify-center rounded-xl bg-neutral-100"
+                    aria-hidden="true"
+                  >
+                    <span className="text-sm text-neutral-400">Case study image</span>
+                  </div>
+                )}
 
                 <div className="mt-5 flex items-center gap-2.5">
                   <span

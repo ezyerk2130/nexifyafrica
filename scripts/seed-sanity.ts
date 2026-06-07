@@ -9,17 +9,6 @@
  */
 
 import { createClient } from "@sanity/client";
-import * as dotenv from "dotenv";
-import * as path from "path";
-import * as fs from "fs";
-
-// Load .env.local
-const envPath = path.resolve(process.cwd(), ".env.local");
-if (fs.existsSync(envPath)) {
-  dotenv.config({ path: envPath });
-} else {
-  dotenv.config();
-}
 
 const client = createClient({
   projectId: "v0quzgcv",
@@ -99,10 +88,31 @@ const caseStudy = {
 const homePage = {
   _id: "homePage",
   _type: "homePage" as const,
-  servicesHeading: "Our Services",
+  // Hero
+  heroLines: ["A Force For Progress in Tech", "Across Africa"],
+  heroRevealLines: [
+    "We create strategies, brand systems, digital",
+    "products, and experiences for the world's",
+    "most disruptive thinkers.",
+  ],
+  heroCtaText: "Our work",
+  heroCtaHref: "#work",
+  // Principles
   principlesHeadingBefore: "We help teams ",
   principlesHeadingHighlight: "move with intent",
-  principlesHeadingAfter: ", build for scale, and design digital products that survive contact with reality.",
+  principlesHeadingAfter:
+    ", build for scale, and design digital products that survive contact with reality.",
+  // Services
+  servicesHeading: "Our Services",
+  // FAQ
+  faqHeadingItalic: "Questions?",
+  faqHeading: "Glad you asked.",
+  // Case studies page hero
+  caseStudiesHeroLines: [
+    "Stories of change —",
+    "and the strategy behind them",
+  ],
+  caseStudiesRevealLines: ["Real outcomes.", "Measured impact."],
 };
 
 const manifestoPage = {

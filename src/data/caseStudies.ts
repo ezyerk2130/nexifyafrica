@@ -4,6 +4,7 @@ export type CaseStudyCard = {
   metric: string;
   metricLabel: string;
   slug?: string;
+  imageUrl?: string;
 };
 
 export type CaseStudySidebar = {

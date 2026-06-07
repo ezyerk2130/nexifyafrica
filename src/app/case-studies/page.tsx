@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import CaseStudiesPage from "@/components/CaseStudiesPage";
-import { getCaseStudyCards } from "@/sanity/lib/queries";
+import { getCaseStudyCards, getHomePage } from "@/sanity/lib/queries";
+import { urlFor } from "@/sanity/lib/image";
 
 export const metadata: Metadata = {
   title: "Case Studies",
@@ -9,7 +10,10 @@ export const metadata: Metadata = {
 };
 
 export default async function CaseStudiesRoute() {
-  const cards = await getCaseStudyCards().catch(() => null);
+  const [cards, homePage] = await Promise.all([
+    getCaseStudyCards().catch(() => null),
+    getHomePage().catch(() => null),
+  ]);
 
   const cardsProps =
     cards && cards.length > 0
@@ -20,9 +24,16 @@ export default async function CaseStudiesRoute() {
             metric: c.metric,
             metricLabel: c.metricLabel,
             slug: c.slug?.current,
+            imageUrl: c.cardImage?.asset ? urlFor(c.cardImage).width(800).url() : undefined,
           })),
         }
       : {};
 
-  return <CaseStudiesPage {...cardsProps} />;
+  return (
+    <CaseStudiesPage
+      {...cardsProps}
+      heroLines={homePage?.caseStudiesHeroLines}
+      heroRevealLines={homePage?.caseStudiesRevealLines}
+    />
+  );
 }

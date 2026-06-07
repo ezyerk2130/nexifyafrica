@@ -76,6 +76,13 @@ export const caseStudyType = defineType({
     defineField({ name: "metric", title: "Card – Metric", type: "string" }),
     defineField({ name: "metricLabel", title: "Card – Metric Label", type: "string" }),
     defineField({
+      name: "cardImage",
+      title: "Card Thumbnail Image",
+      description: "Image shown on the case studies listing page",
+      type: "image",
+      options: { hotspot: true },
+    }),
+    defineField({
       name: "sidebar",
       title: "Sidebar",
       type: "object",

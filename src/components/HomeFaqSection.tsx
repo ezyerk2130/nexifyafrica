@@ -33,12 +33,19 @@ function FaqToggleIcon({ open }: { open: boolean }) {
   );
 }
 
+const DEFAULT_FAQ_HEADING_ITALIC = "Questions?";
+const DEFAULT_FAQ_HEADING = "Glad you asked.";
+
 type Props = {
   items?: FaqItem[];
+  headingItalic?: string;
+  heading?: string;
 };
 
-export default function HomeFaqSection({ items }: Props = {}) {
+export default function HomeFaqSection({ items, headingItalic, heading }: Props = {}) {
   const FAQ_ITEMS = items ?? HOME_FAQ_ITEMS;
+  const italicText = headingItalic || DEFAULT_FAQ_HEADING_ITALIC;
+  const mainText = heading || DEFAULT_FAQ_HEADING;
   const sectionRef = useRef<HTMLElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
@@ -103,8 +110,8 @@ export default function HomeFaqSection({ items }: Props = {}) {
             <RevealText
               block
               segments={[
-                { text: "Questions?", italic: true, keepTogether: true },
-                { text: "Glad you asked." },
+                { text: italicText, italic: true, keepTogether: true },
+                { text: mainText },
               ]}
             />
           </h2>
