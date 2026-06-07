@@ -1,37 +1,12 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Link from "next/link";
 import CaseStudiesHero from "@/components/CaseStudiesHero";
 import Footer from "@/components/Footer";
+import { CASE_STUDY_CARDS } from "@/data/caseStudies";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
-
-const CASE_STUDIES = [
-  {
-    client: "Concept Lab",
-    title: "Stabilizing deployment workflows across growing production environments",
-    metric: "40%",
-    metricLabel: "reduction in downtime",
-  },
-  {
-    client: "Code_House",
-    title: "Improving execution reliability for multi-team automation workflows",
-    metric: "40%",
-    metricLabel: "increase in release frequency",
-  },
-  {
-    client: "Moana",
-    title: "Reducing operational overhead across long-running data pipelines",
-    metric: "70%",
-    metricLabel: "reduction in manual intervention",
-  },
-  {
-    client: "Jasmin Studio",
-    title: "“Things started moving immediately. Less discussion, more execution.”",
-    metric: "55%",
-    metricLabel: "increase in team productivity",
-  },
-] as const;
 
 export default function CaseStudiesPage() {
   const cardsSectionRef = useRef<HTMLElement>(null);
@@ -89,7 +64,7 @@ export default function CaseStudiesPage() {
       >
         <div className="mx-auto max-w-[1400px] px-6 pb-24 pt-16 sm:px-8 lg:px-12 lg:pb-32 lg:pt-20">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8">
-            {CASE_STUDIES.map((study) => (
+            {CASE_STUDY_CARDS.map((study) => (
               <article
                 key={study.client}
                 className="case-study-card flex min-w-0 flex-col overflow-hidden rounded-2xl border border-neutral-200/80 bg-white p-5 sm:p-6"
@@ -125,15 +100,24 @@ export default function CaseStudiesPage() {
                     </p>
                   </div>
 
-                  <button
-                    type="button"
-                    disabled
-                    aria-disabled="true"
-                    title="Full case study coming soon"
-                    className="site-button site-button--blue site-button--disabled w-full shrink-0 justify-center lg:w-auto"
-                  >
-                    Coming soon
-                  </button>
+                  {study.slug ? (
+                    <Link
+                      href={`/case-studies/${study.slug}`}
+                      className="site-button site-button--blue w-full shrink-0 justify-center lg:w-auto"
+                    >
+                      Read case study
+                    </Link>
+                  ) : (
+                    <button
+                      type="button"
+                      disabled
+                      aria-disabled="true"
+                      title="Full case study coming soon"
+                      className="site-button site-button--blue site-button--disabled w-full shrink-0 justify-center lg:w-auto"
+                    >
+                      Coming soon
+                    </button>
+                  )}
                 </div>
               </article>
             ))}

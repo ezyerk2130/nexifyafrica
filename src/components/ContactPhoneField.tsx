@@ -16,6 +16,10 @@ export default function ContactPhoneField() {
   const phoneInputId = useId();
 
   useEffect(() => {
+    // Country detection relies on navigator/Intl, which are unavailable during
+    // SSR. Defer to a post-hydration effect so the server and first client
+    // render agree (avoiding a hydration mismatch) before applying the result.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCountryCode(detectDefaultCountry());
   }, []);
 

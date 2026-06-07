@@ -96,7 +96,7 @@ export default function HomeFaqSection() {
             <RevealText
               block
               segments={[
-                { text: "Questions?", italic: true },
+                { text: "Questions?", italic: true, keepTogether: true },
                 { text: "Glad you asked." },
               ]}
             />

@@ -101,6 +101,8 @@ h6 {
   .hero-header-item,
   .home-principle-card,
   .home-principles-heading,
+  .home-service-card,
+  .home-services-heading,
   .home-faq-item {
     transform: none !important;
     opacity: 1 !important;
@@ -711,6 +713,11 @@ html.lenis body {
   padding-bottom: calc(var(--home-section-gap) / 2);
 }
 
+.home-section-inner--services {
+  padding-top: calc(var(--home-section-gap) / 2);
+  padding-bottom: calc(var(--home-section-gap) / 2);
+}
+
 .home-section-inner--faq {
   padding-top: calc(var(--home-section-gap) / 2);
   padding-bottom: var(--home-section-padding-y);
@@ -881,6 +888,109 @@ html.lenis body {
   color: #4b5563;
 }
 
+/* Homepage services grid */
+.home-services {
+  background-color: #ffffff;
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+.home-services-header {
+  margin-bottom: clamp(2rem, 4vw, 3rem);
+  text-align: center;
+}
+
+.home-services-heading {
+  margin: 0;
+  font-family: var(--font-polymath-display), system-ui, sans-serif;
+  font-size: 36px;
+  font-weight: 400;
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+  color: #0c1018;
+}
+
+@media (min-width: 768px) {
+  .home-services-heading {
+    font-size: 60px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .home-services-heading {
+    font-size: 54px;
+  }
+}
+
+.home-services-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .home-services-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .home-services-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+.home-service-card {
+  display: flex;
+  min-height: 20rem;
+  flex-direction: column;
+  border: 1px solid #e5e7eb;
+  background-color: #ffffff;
+  padding: 2rem 1.75rem;
+}
+
+@media (min-width: 768px) {
+  .home-service-card {
+    min-height: 22rem;
+    padding: 2.25rem 2rem;
+  }
+}
+
+.home-service-number {
+  margin: 0;
+  flex-shrink: 0;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: clamp(2.5rem, 4vw, 3.25rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: #003b8c;
+}
+
+.home-service-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  margin-top: auto;
+}
+
+.home-service-title {
+  margin: 0;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #0c1018;
+}
+
+.home-service-description {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.55;
+  color: #4b5563;
+}
+
 /* Homepage FAQ */
 .home-faq {
   background-color: #f4f6f8;
@@ -897,9 +1007,20 @@ html.lenis body {
   font-family: var(--font-polymath-display), system-ui, sans-serif;
   font-size: 36px;
   font-weight: 400;
-  line-height: 0.98;
+  line-height: 1.08;
   letter-spacing: -0.04em;
   color: #0c1018;
+}
+
+.home-faq-heading .hero-word-mask {
+  overflow: hidden;
+  line-height: 1.2;
+  padding-bottom: 0.14em;
+  vertical-align: baseline;
+}
+
+.home-faq-heading .hero-word {
+  line-height: inherit;
 }
 
 @media (min-width: 768px) {
@@ -1307,5 +1428,160 @@ html.lenis body {
 
 .contact-detail-link:hover {
   opacity: 0.75;
+}
+
+/* Case study detail */
+.case-study-detail-layout {
+  display: grid;
+  gap: 2.5rem;
+  padding-block: 3rem 4.5rem;
+}
+
+@media (min-width: 1024px) {
+  .case-study-detail-layout {
+    grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+    gap: 3rem 4rem;
+    padding-block: 4rem 6rem;
+    align-items: start;
+  }
+}
+
+.case-study-sidebar {
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .case-study-sidebar {
+    position: sticky;
+    top: 2rem;
+  }
+}
+
+.case-study-sidebar-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  background-color: #ffffff;
+  padding: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .case-study-sidebar-card {
+    padding: 1.75rem;
+  }
+}
+
+.case-study-sidebar-list {
+  margin: 0;
+}
+
+.case-study-sidebar-item {
+  padding-bottom: 1.25rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.case-study-sidebar-item--last {
+  padding-bottom: 0;
+  margin-bottom: 0;
+  border-bottom: none;
+}
+
+.case-study-sidebar-label {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #003b8c;
+}
+
+.case-study-sidebar-value {
+  margin: 0;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 18px;
+  line-height: 25px;
+  color: #374151;
+}
+
+.case-study-content {
+  min-width: 0;
+}
+
+.case-study-content-section + .case-study-content-section {
+  margin-top: 3.5rem;
+}
+
+@media (min-width: 1024px) {
+  .case-study-content-section + .case-study-content-section {
+    margin-top: 4rem;
+  }
+}
+
+.case-study-content-heading {
+  margin: 0 0 1.5rem;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 32px;
+  line-height: 38px;
+  font-weight: 700;
+  letter-spacing: 0;
+  color: #003b8c;
+}
+
+@media (min-width: 768px) {
+  .case-study-content-heading {
+    font-size: 36px;
+    line-height: 44px;
+  }
+}
+
+.case-study-section-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.case-study-detail-body {
+  margin: 0;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 18px;
+  line-height: 25px;
+  color: #374151;
+}
+
+.case-study-bullet-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 18px;
+  line-height: 25px;
+  color: #374151;
+  list-style-type: disc;
+}
+
+.case-study-section-image {
+  margin: 0.5rem 0 0;
+}
+
+.case-study-section-image-frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  background-color: #e5e7eb;
+}
+
+.case-study-section-image-frame--wide {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}
+
+.case-study-section-image-frame--square {
+  width: 100%;
+  max-width: 608px;
+  aspect-ratio: 1 / 1;
 }
 
