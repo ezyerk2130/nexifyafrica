@@ -11,11 +11,12 @@ export default function SmoothScrollProvider({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  useSmoothScroll(true);
+  const isStudio = pathname.startsWith("/studio");
+  useSmoothScroll(!isStudio);
 
   useEffect(() => {
-    ScrollTrigger.refresh();
-  }, [pathname]);
+    if (!isStudio) ScrollTrigger.refresh();
+  }, [pathname, isStudio]);
 
   return children;
 }

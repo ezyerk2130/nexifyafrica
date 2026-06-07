@@ -16,6 +16,23 @@ const LAYOUT_INNER =
 const MANIFESTO_IMAGE_FRAME =
   "manifesto-image-placeholder relative aspect-[21/9] w-full min-h-[220px] overflow-hidden sm:min-h-[300px] lg:min-h-[360px]";
 
+// Normalized section shape – compatible with both local data and Sanity-fetched data
+export type NormalizedManifestoSection = {
+  id: string;
+  label: string;
+  blocks: Array<{
+    type: "paragraph" | "list" | "ordered-list" | "pullquote";
+    text?: string;
+    items?: string[];
+    ordered?: boolean;
+  }>;
+  imageAfter?: boolean;
+  imageAfterSrc?: string;
+  imageAfterAlt?: string;
+  imageAfterFit?: "cover" | "contain";
+  imageAfterObjectPosition?: string;
+};
+
 function ManifestoImage({
   label,
   src,
@@ -74,7 +91,9 @@ function ManifestoAccentLine() {
   return <div className="manifesto-accent-line" aria-hidden="true" />;
 }
 
-function ManifestoBlockRenderer({ block }: { block: ManifestoBlock }) {
+type BlockType = NormalizedManifestoSection["blocks"][number];
+
+function ManifestoBlockRenderer({ block }: { block: BlockType | ManifestoBlock }) {
   if (block.type === "pullquote") {
     return (
       <blockquote className="manifesto-pullquote font-sans">
@@ -87,25 +106,42 @@ function ManifestoBlockRenderer({ block }: { block: ManifestoBlock }) {
     return <p className="manifesto-body">{block.text}</p>;
   }
 
-  const ListTag = block.ordered ? "ol" : "ul";
+  // Handle both local "list" (with ordered boolean) and Sanity "ordered-list" type
+  const isOrdered =
+    block.type === "ordered-list" ||
+    ("ordered" in block && block.ordered === true);
+  const ListTag = isOrdered ? "ol" : "ul";
+  const items = block.items ?? [];
 
   return (
     <ListTag
       className={
-        block.ordered ? "manifesto-body manifesto-ordered-list" : "manifesto-body manifesto-list"
+        isOrdered ? "manifesto-body manifesto-ordered-list" : "manifesto-body manifesto-list"
       }
     >
-      {block.items.map((item) => (
+      {items.map((item) => (
         <li key={item}>{item}</li>
       ))}
     </ListTag>
   );
 }
 
-export default function ManifestoPage() {
+type Props = {
+  heroLines?: readonly string[];
+  heroRevealLines?: readonly string[];
+  kicker?: string;
+  lead?: string;
+  sections?: NormalizedManifestoSection[];
+};
+
+export default function ManifestoPage({ heroLines, heroRevealLines, kicker, lead, sections }: Props = {}) {
+  const SECTIONS = sections ?? (MANIFESTO_SECTIONS as unknown as NormalizedManifestoSection[]);
+  const displayKicker = kicker ?? MANIFESTO_HERO.kicker;
+  const displayLead = lead ?? MANIFESTO_HERO.lead;
+
   return (
     <>
-      <ManifestoHero />
+      <ManifestoHero lines={heroLines} revealLines={heroRevealLines} />
 
       <article className="manifesto-page text-neutral-900">
         <ManifestoImage
@@ -115,11 +151,11 @@ export default function ManifestoPage() {
         />
 
         <div className={`manifesto-content ${LAYOUT_INNER}`}>
-          <p className="manifesto-kicker">{MANIFESTO_HERO.kicker}</p>
-          <p className="manifesto-lead">{MANIFESTO_HERO.lead}</p>
+          <p className="manifesto-kicker">{displayKicker}</p>
+          <p className="manifesto-lead">{displayLead}</p>
         </div>
 
-        {MANIFESTO_SECTIONS.map((section) => (
+        {SECTIONS.map((section) => (
           <Fragment key={section.id}>
             <div className={LAYOUT_INNER}>
               <section

@@ -1,40 +1,91 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import CaseStudyDetailPage from "@/components/CaseStudyDetailPage";
+import { urlFor } from "@/sanity/lib/image";
+import {
+  getAllCaseStudySlugsFromSanity,
+  getCaseStudyBySlugFromSanity,
+} from "@/sanity/lib/queries";
 import {
   getAllCaseStudySlugs,
   getCaseStudyBySlug,
+  type CaseStudyDetail,
 } from "@/data/caseStudies";
 
 type CaseStudyRouteProps = {
   params: Promise<{ slug: string }>;
 };
 
-export function generateStaticParams() {
-  return getAllCaseStudySlugs().map((slug) => ({ slug }));
+export async function generateStaticParams() {
+  const sanitySlugs = await getAllCaseStudySlugsFromSanity().catch(() => []);
+  const localSlugs = getAllCaseStudySlugs();
+  const all = Array.from(new Set([...sanitySlugs, ...localSlugs]));
+  return all.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
   params,
 }: CaseStudyRouteProps): Promise<Metadata> {
   const { slug } = await params;
-  const study = getCaseStudyBySlug(slug);
 
-  if (!study) {
-    return { title: "Case Study" };
+  const sanityStudy = await getCaseStudyBySlugFromSanity(slug).catch(() => null);
+  if (sanityStudy) {
+    const overview = sanityStudy.sections?.find((s) => s.id?.current === "overview");
+    return {
+      title: sanityStudy.title,
+      description: overview?.paragraphs?.[0] ?? sanityStudy.title,
+    };
   }
 
-  const overview = study.sections.find((section) => section.id === "overview");
+  const localStudy = getCaseStudyBySlug(slug);
+  if (localStudy) {
+    const overview = localStudy.sections.find((s) => s.id === "overview");
+    return {
+      title: localStudy.title,
+      description: overview?.paragraphs[0] ?? localStudy.title,
+    };
+  }
 
-  return {
-    title: study.title,
-    description: overview?.paragraphs[0] ?? study.title,
-  };
+  return { title: "Case Study" };
 }
 
 export default async function CaseStudyRoute({ params }: CaseStudyRouteProps) {
   const { slug } = await params;
-  const study = getCaseStudyBySlug(slug);
+
+  // Try Sanity first, then fall back to local static data
+  const sanityStudy = await getCaseStudyBySlugFromSanity(slug).catch(() => null);
+
+  let study: CaseStudyDetail | undefined;
+
+  if (sanityStudy) {
+    study = {
+      slug: sanityStudy.slug.current,
+      title: sanityStudy.title,
+      heroLines: sanityStudy.heroLines ?? [],
+      heroRevealLines: sanityStudy.heroRevealLines ?? [],
+      sidebar: {
+        client: sanityStudy.sidebar?.client ?? "",
+        industry: sanityStudy.sidebar?.industry ?? "",
+        services: sanityStudy.sidebar?.services ?? "",
+        projectDuration: sanityStudy.sidebar?.projectDuration ?? "",
+      },
+      sections: (sanityStudy.sections ?? []).map((section) => ({
+        id: section.id?.current ?? section.id as unknown as string,
+        title: section.title,
+        paragraphs: section.paragraphs ?? [],
+        bullets: section.bullets,
+        image: section.image?.asset
+          ? {
+              src: urlFor(section.image.asset).url(),
+              alt: section.image.alt,
+              variant: section.image.variant ?? "wide",
+            }
+          : undefined,
+      })),
+    };
+  } else {
+    study = getCaseStudyBySlug(slug);
+  }
 
   if (!study) {
     notFound();

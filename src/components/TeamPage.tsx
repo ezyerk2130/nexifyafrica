@@ -9,14 +9,17 @@ import {
   TEAM_MEMBERS,
   type TeamMember,
 } from "@/data/team";
+
+type TeamMemberItem = Pick<TeamMember, "name" | "role"> & { id?: string; portraitUrl?: string };
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 
 const LAYOUT_INNER =
   "mx-auto w-full max-w-[1400px] px-6 sm:px-8 lg:px-12";
 
-function TeamCard({ member, index }: { member: TeamMember; index: number }) {
+function TeamCard({ member, defaultImageUrl, index }: { member: TeamMemberItem; defaultImageUrl: string; index: number }) {
   const [isHovered, setIsHovered] = useState(false);
+  const imageSrc = member.portraitUrl ?? defaultImageUrl;
 
   return (
     <div className="team-card-wrap">
@@ -31,7 +34,7 @@ function TeamCard({ member, index }: { member: TeamMember; index: number }) {
       >
         <div className="team-card-media">
           <Image
-            src={TEAM_IMAGE}
+            src={imageSrc}
             alt={`Portrait of ${member.name}`}
             fill
             className="image-cover"
@@ -49,7 +52,16 @@ function TeamCard({ member, index }: { member: TeamMember; index: number }) {
   );
 }
 
-export default function TeamPage() {
+type Props = {
+  members?: TeamMemberItem[];
+  defaultImageUrl?: string;
+  heroLines?: readonly string[];
+  heroRevealLines?: readonly string[];
+};
+
+export default function TeamPage({ members, defaultImageUrl, heroLines, heroRevealLines }: Props = {}) {
+  const MEMBERS = members ?? TEAM_MEMBERS;
+  const DEFAULT_IMAGE = defaultImageUrl ?? TEAM_IMAGE;
   const sectionRef = useRef<HTMLElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = usePrefersReducedMotion();
@@ -99,13 +111,13 @@ export default function TeamPage() {
 
   return (
     <>
-      <TeamHero />
+      <TeamHero lines={heroLines} revealLines={heroRevealLines} />
 
       <section ref={sectionRef} className="team-page text-neutral-900">
         <div className={`${LAYOUT_INNER} pb-24 pt-16 lg:pb-32 lg:pt-20`}>
           <div ref={gridRef} className="team-grid">
-            {TEAM_MEMBERS.map((member, index) => (
-              <TeamCard key={member.id} member={member} index={index} />
+            {MEMBERS.map((member, index) => (
+              <TeamCard key={member.id ?? index} member={member} defaultImageUrl={DEFAULT_IMAGE} index={index} />
             ))}
           </div>
         </div>

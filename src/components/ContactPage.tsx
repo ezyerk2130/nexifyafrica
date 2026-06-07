@@ -7,6 +7,17 @@ import ContactPhoneField from "@/components/ContactPhoneField";
 import Footer from "@/components/Footer";
 import { CONTACT_DETAILS, CONTACT_VISUAL } from "@/data/contact";
 
+type ContactIconType = "email" | "phone" | "address";
+type ContactDetail = { id: string; title: string; lines: readonly string[]; href?: string };
+type ContactVisual = { imageSrc: string; headline: string; description: string };
+
+type Props = {
+  heroLines?: readonly string[];
+  heroRevealLines?: readonly string[];
+  visual?: ContactVisual;
+  details?: ContactDetail[];
+};
+
 function ContactIcon({ type }: { type: "email" | "phone" | "address" }) {
   if (type === "email") {
     return (
@@ -53,7 +64,9 @@ function ContactIcon({ type }: { type: "email" | "phone" | "address" }) {
   );
 }
 
-export default function ContactPage() {
+export default function ContactPage({ heroLines, heroRevealLines, visual, details }: Props = {}) {
+  const VISUAL = visual ?? CONTACT_VISUAL;
+  const DETAILS = details ?? CONTACT_DETAILS;
   const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -63,13 +76,13 @@ export default function ContactPage() {
 
   return (
     <>
-      <ContactHero />
+      <ContactHero lines={heroLines} revealLines={heroRevealLines} />
 
       <section className="contact-page text-neutral-900">
         <div className="contact-layout mx-auto w-full max-w-[1400px] px-6 pb-24 pt-16 sm:px-8 lg:px-12 lg:pb-32 lg:pt-20">
           <aside className="contact-visual">
             <Image
-              src={CONTACT_VISUAL.imageSrc}
+              src={VISUAL.imageSrc}
               alt=""
               fill
               className="contact-visual-image object-cover"
@@ -78,8 +91,8 @@ export default function ContactPage() {
             />
             <div className="contact-visual-overlay" aria-hidden="true" />
             <div className="contact-visual-copy">
-              <h2 className="contact-visual-headline">{CONTACT_VISUAL.headline}</h2>
-              <p className="contact-visual-description">{CONTACT_VISUAL.description}</p>
+              <h2 className="contact-visual-headline">{VISUAL.headline}</h2>
+              <p className="contact-visual-description">{VISUAL.description}</p>
             </div>
           </aside>
 
@@ -145,10 +158,10 @@ export default function ContactPage() {
             </form>
 
             <dl className="contact-details">
-              {CONTACT_DETAILS.map((item) => (
+              {DETAILS.map((item) => (
                 <div key={item.id} className="contact-detail">
                   <span className="contact-detail-icon">
-                    <ContactIcon type={item.id} />
+                    <ContactIcon type={item.id as ContactIconType} />
                   </span>
                   <div className="contact-detail-copy">
                     <dt className="contact-detail-label">{item.title}</dt>

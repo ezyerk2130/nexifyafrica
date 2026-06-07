@@ -7,11 +7,9 @@ import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { useScrollWordReveal } from "@/hooks/useScrollWordReveal";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 
-function ServiceCard({
-  number,
-  title,
-  description,
-}: (typeof HOME_SERVICES)[number]) {
+type ServiceItem = { id?: string; number: string; title: string; description: string };
+
+function ServiceCard({ number, title, description }: ServiceItem) {
   return (
     <article className="home-service-card">
       <p className="home-service-number" aria-hidden="true">
@@ -25,7 +23,14 @@ function ServiceCard({
   );
 }
 
-export default function HomeServicesSection() {
+type Props = {
+  services?: ServiceItem[];
+  heading?: string;
+};
+
+export default function HomeServicesSection({ services, heading }: Props = {}) {
+  const SERVICES = services ?? HOME_SERVICES;
+  const HEADING = heading ?? HOME_SERVICES_HEADING;
   const sectionRef = useRef<HTMLElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
@@ -86,13 +91,13 @@ export default function HomeServicesSection() {
       <div className="home-section-inner home-section-inner--services">
         <header className="home-services-header">
           <h2 id="home-services-heading" ref={headingRef} className="home-services-heading">
-            <RevealText block segments={[{ text: HOME_SERVICES_HEADING }]} />
+            <RevealText block segments={[{ text: HEADING }]} />
           </h2>
         </header>
 
         <div ref={gridRef} className="home-services-grid">
-          {HOME_SERVICES.map((service) => (
-            <ServiceCard key={service.id} {...service} />
+          {SERVICES.map((service, index) => (
+            <ServiceCard key={service.id ?? index} {...service} />
           ))}
         </div>
       </div>

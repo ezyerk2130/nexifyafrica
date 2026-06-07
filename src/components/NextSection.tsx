@@ -6,21 +6,25 @@ import RevealText from "@/components/RevealText";
 import {
   HOME_PRINCIPLES,
   HOME_PRINCIPLES_HEADING,
+  type PrincipleIconId,
 } from "@/data/homePrinciples";
+
+type PrincipleItem = {
+  id?: string;
+  icon: string;
+  title: string;
+  description: string;
+};
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { useScrollWordReveal } from "@/hooks/useScrollWordReveal";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 
-function PrincipleCard({
-  icon,
-  title,
-  description,
-}: (typeof HOME_PRINCIPLES)[number]) {
+function PrincipleCard({ icon, title, description }: PrincipleItem) {
   return (
     <article className="home-principle-card">
       <div className="home-principle-card-top">
         <div className="home-principle-icon-wrap">
-          <PrincipleIcon id={icon} />
+          <PrincipleIcon id={icon as PrincipleIconId} />
         </div>
         <h3 className="home-principle-title">{title}</h3>
       </div>
@@ -29,24 +33,37 @@ function PrincipleCard({
   );
 }
 
+type Props = {
+  principles?: PrincipleItem[];
+  headingBefore?: string;
+  headingHighlight?: string;
+  headingAfter?: string;
+};
+
 function MarqueeList({
   ariaHidden = false,
+  principles,
 }: {
   ariaHidden?: boolean;
+  principles: readonly PrincipleItem[];
 }) {
   return (
     <div
       className="home-marquee-list"
       aria-hidden={ariaHidden || undefined}
     >
-      {HOME_PRINCIPLES.map((principle) => (
-        <PrincipleCard key={`${ariaHidden ? "dup-" : ""}${principle.id}`} {...principle} />
+      {principles.map((principle, i) => (
+        <PrincipleCard key={`${ariaHidden ? "dup-" : ""}${principle.id ?? i}`} {...principle} />
       ))}
     </div>
   );
 }
 
-export default function NextSection() {
+export default function NextSection({ principles, headingBefore, headingHighlight, headingAfter }: Props = {}) {
+  const PRINCIPLES: readonly PrincipleItem[] = principles ?? HOME_PRINCIPLES;
+  const before = headingBefore ?? HOME_PRINCIPLES_HEADING.before;
+  const highlight = headingHighlight ?? HOME_PRINCIPLES_HEADING.highlight;
+  const after = headingAfter ?? HOME_PRINCIPLES_HEADING.after;
   const sectionRef = useRef<HTMLElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const marqueeRef = useRef<HTMLDivElement>(null);
@@ -139,13 +156,13 @@ export default function NextSection() {
         <h2 ref={headingRef} className="home-principles-heading">
           <RevealText
             segments={[
-              { text: HOME_PRINCIPLES_HEADING.before },
+              { text: before },
               {
-                text: HOME_PRINCIPLES_HEADING.highlight,
+                text: highlight,
                 className: "home-principles-highlight",
                 keepTogether: true,
               },
-              { text: HOME_PRINCIPLES_HEADING.after },
+              { text: after },
             ]}
           />
         </h2>
@@ -156,8 +173,8 @@ export default function NextSection() {
         className={`home-marquee${prefersReducedMotion ? " home-marquee--static" : ""}`}
       >
         <div ref={trackRef} className="home-marquee-track">
-          <MarqueeList />
-          {!prefersReducedMotion ? <MarqueeList ariaHidden /> : null}
+          <MarqueeList principles={PRINCIPLES} />
+          {!prefersReducedMotion ? <MarqueeList ariaHidden principles={PRINCIPLES} /> : null}
         </div>
       </div>
     </section>

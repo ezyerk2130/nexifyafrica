@@ -8,6 +8,14 @@ const nextConfig: NextConfig = {
     "192.168.0.*",
     "10.0.0.*",
   ],
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "cdn.sanity.io",
+      },
+    ],
+  },
 };
 
 export default nextConfig;

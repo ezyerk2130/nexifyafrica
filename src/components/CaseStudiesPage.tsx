@@ -5,10 +5,23 @@ import Link from "next/link";
 import CaseStudiesHero from "@/components/CaseStudiesHero";
 import Footer from "@/components/Footer";
 import { CASE_STUDY_CARDS } from "@/data/caseStudies";
+
+type CardItem = {
+  client: string;
+  title: string;
+  metric: string;
+  metricLabel: string;
+  slug?: string;
+};
+
+type Props = {
+  cards?: CardItem[];
+};
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 
-export default function CaseStudiesPage() {
+export default function CaseStudiesPage({ cards }: Props = {}) {
+  const CARDS = cards ?? CASE_STUDY_CARDS;
   const cardsSectionRef = useRef<HTMLElement>(null);
   const prefersReducedMotion = usePrefersReducedMotion();
 
@@ -64,7 +77,7 @@ export default function CaseStudiesPage() {
       >
         <div className="mx-auto max-w-[1400px] px-6 pb-24 pt-16 sm:px-8 lg:px-12 lg:pb-32 lg:pt-20">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8">
-            {CASE_STUDY_CARDS.map((study) => (
+            {CARDS.map((study) => (
               <article
                 key={study.client}
                 className="case-study-card flex min-w-0 flex-col overflow-hidden rounded-2xl border border-neutral-200/80 bg-white p-5 sm:p-6"

@@ -4,6 +4,8 @@ import { useEffect, useId, useRef, useState } from "react";
 import RevealText from "@/components/RevealText";
 import { HOME_FAQ_ITEMS } from "@/data/homeFaq";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+
+type FaqItem = { id: string; question: string; answer: string };
 import { useScrollWordReveal } from "@/hooks/useScrollWordReveal";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 
@@ -31,7 +33,12 @@ function FaqToggleIcon({ open }: { open: boolean }) {
   );
 }
 
-export default function HomeFaqSection() {
+type Props = {
+  items?: FaqItem[];
+};
+
+export default function HomeFaqSection({ items }: Props = {}) {
+  const FAQ_ITEMS = items ?? HOME_FAQ_ITEMS;
   const sectionRef = useRef<HTMLElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
@@ -104,7 +111,7 @@ export default function HomeFaqSection() {
         </header>
 
         <div ref={listRef} className="home-faq-list">
-          {HOME_FAQ_ITEMS.map((item) => {
+          {FAQ_ITEMS.map((item) => {
             const isOpen = openId === item.id;
             const answerId = `${baseId}-${item.id}-answer`;
 

@@ -4,11 +4,16 @@ import {
   MANIFESTO_HERO_REVEAL_LINES,
 } from "@/data/manifesto";
 
-export default function ManifestoHero() {
+type Props = {
+  lines?: readonly string[];
+  revealLines?: readonly string[];
+};
+
+export default function ManifestoHero({ lines, revealLines }: Props) {
   return (
     <PinnedHero
-      lines={MANIFESTO_HERO_LINES}
-      revealLines={MANIFESTO_HERO_REVEAL_LINES}
+      lines={lines ?? MANIFESTO_HERO_LINES}
+      revealLines={revealLines ?? MANIFESTO_HERO_REVEAL_LINES}
     />
   );
 }
