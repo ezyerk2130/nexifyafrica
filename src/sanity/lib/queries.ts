@@ -113,29 +113,17 @@ export type SanityHomePage = {
   caseStudiesRevealLines?: string[];
 };
 
-export type SanityManifestoBlock = {
-  type: "paragraph" | "list" | "ordered-list" | "pullquote";
-  text?: string;
-  items?: string[];
-};
-
-export type SanityManifestoSection = {
-  id: { current: string };
-  label: string;
-  blocks: SanityManifestoBlock[];
-  imageAfter?: boolean;
-  image?: SanityImageRef;
-  imageAlt?: string;
-  imageFit?: "cover" | "contain";
-};
+// Portable Text block — a flexible catch-all for the blog-style manifesto body
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type ManifestoPTBlock = Record<string, any>;
 
 export type SanityManifestoPage = {
-  heroLines: string[];
-  heroRevealLines: string[];
-  title: string;
-  kicker: string;
-  lead: string;
-  sections: SanityManifestoSection[];
+  heroLines?: string[];
+  heroRevealLines?: string[];
+  title?: string;
+  kicker?: string;
+  lead?: string;
+  body?: ManifestoPTBlock[];
 };
 
 export type SanityContactDetail = {
@@ -284,14 +272,9 @@ export async function getManifestoPage(): Promise<SanityManifestoPage | null> {
       title,
       kicker,
       lead,
-      sections[] {
-        id,
-        label,
-        blocks[] { type, text, items },
-        imageAfter,
-        image { asset },
-        imageAlt,
-        imageFit
+      body[] {
+        ...,
+        _type == "image" => { ..., asset }
       }
     }`,
     {},

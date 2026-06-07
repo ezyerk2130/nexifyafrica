@@ -115,6 +115,28 @@ const homePage = {
   caseStudiesRevealLines: ["Real outcomes.", "Measured impact."],
 };
 
+// Helpers to build Portable Text blocks
+function ptBlock(key: string, style: string, text: string) {
+  return {
+    _type: "block",
+    _key: key,
+    style,
+    children: [{ _type: "span", _key: `${key}s`, text, marks: [] }],
+    markDefs: [],
+  };
+}
+function ptBullet(key: string, text: string) {
+  return {
+    _type: "block",
+    _key: key,
+    style: "normal",
+    listItem: "bullet",
+    level: 1,
+    children: [{ _type: "span", _key: `${key}s`, text, marks: [] }],
+    markDefs: [],
+  };
+}
+
 const manifestoPage = {
   _id: "manifestoPage",
   _type: "manifestoPage" as const,
@@ -123,10 +145,29 @@ const manifestoPage = {
   title: "Where Did Africa's Digital Promise Go?",
   kicker: "Our Manifesto",
   lead: "We build software for the leaders writing Africa's next chapter because the continent that gave the world mobile money deserves technology that matches its ambition.",
-  sections: [
-    { id: { _type: "slug" as const, current: "paradox" }, label: "A. THE PARADOX", blocks: [{ type: "paragraph" as const, text: "Here's what doesn't make sense: Africa pioneered mobile money — M-Pesa moved billions before Apple Pay existed. African farmers use SMS to get market prices while their American counterparts still rely on century-old commodity exchanges. African entrepreneurs build billion-dollar companies with duct tape and determination." }, { type: "paragraph" as const, text: "Yet somehow, the same continent that taught the world financial inclusion is still running on spreadsheets. The same innovators who reimagined banking are stuck with ERP systems designed for 1990s Europe. The same markets that leapfrogged landlines are drowning in software that treats Africa like an afterthought." }, { type: "paragraph" as const, text: "This is the paradox that keeps us awake: Africa innovates around broken technology instead of demanding technology that amplifies innovation." }] },
-    { id: { _type: "slug" as const, current: "betrayal" }, label: "B. THE GREAT AFRICAN SOFTWARE BETRAYAL", imageAfter: true, blocks: [{ type: "paragraph" as const, text: "For two decades, global software companies have treated Africa like a testing ground for last year's features. They've sold us \"emerging market solutions\" — a euphemism for simplified, stripped-down versions of tools that work brilliantly elsewhere." }, { type: "paragraph" as const, text: "Meanwhile, local companies have built impressive solutions... for problems that shouldn't exist. We've created workarounds for workarounds. We've digitized dysfunction instead of reimagining possibilities." }, { type: "paragraph" as const, text: "The result? African businesses run on digital duct tape:" }, { type: "list" as const, items: ["Banks that process millions of transactions daily still reconcile accounts manually", "Agricultural cooperatives that feed nations track inventory on WhatsApp", "NGOs that manage million-dollar budgets copy-paste between Excel and email", "Logistics companies that move goods across borders use paper receipts and phone calls", "Government agencies that serve millions still file reports in triplicate"] }, { type: "paragraph" as const, text: "This isn't just inefficiency — it's technological colonialism. Africa's brilliant minds are trapped solving problems that better software would eliminate entirely." }] },
-    { id: { _type: "slug" as const, current: "thesis" }, label: "D. THE NEXIFY THESIS", imageAfter: true, blocks: [{ type: "paragraph" as const, text: "We founded Nexify Africa on a simple but radical premise: African businesses deserve software as sophisticated as their ambitions." }, { type: "paragraph" as const, text: "Not \"good enough for Africa\" software. Not \"emerging market\" compromises. Not hand-me-down solutions from markets that don't understand how innovation actually happens here." }] },
+  body: [
+    // ── A. THE PARADOX ──────────────────────────────────────────────────────
+    ptBlock("h2-a", "h2", "A. THE PARADOX"),
+    ptBlock("p-a1", "normal", "Here's what doesn't make sense: Africa pioneered mobile money — M-Pesa moved billions before Apple Pay existed. African farmers use SMS to get market prices while their American counterparts still rely on century-old commodity exchanges. African entrepreneurs build billion-dollar companies with duct tape and determination."),
+    ptBlock("p-a2", "normal", "Yet somehow, the same continent that taught the world financial inclusion is still running on spreadsheets. The same innovators who reimagined banking are stuck with ERP systems designed for 1990s Europe. The same markets that leapfrogged landlines are drowning in software that treats Africa like an afterthought."),
+    ptBlock("p-a3", "normal", "This is the paradox that keeps us awake: Africa innovates around broken technology instead of demanding technology that amplifies innovation."),
+
+    // ── B. THE GREAT AFRICAN SOFTWARE BETRAYAL ──────────────────────────────
+    ptBlock("h2-b", "h2", "B. THE GREAT AFRICAN SOFTWARE BETRAYAL"),
+    ptBlock("p-b1", "normal", "For two decades, global software companies have treated Africa like a testing ground for last year's features. They've sold us \"emerging market solutions\" — a euphemism for simplified, stripped-down versions of tools that work brilliantly elsewhere."),
+    ptBlock("p-b2", "normal", "Meanwhile, local companies have built impressive solutions... for problems that shouldn't exist. We've created workarounds for workarounds. We've digitized dysfunction instead of reimagining possibilities."),
+    ptBlock("p-b3", "normal", "The result? African businesses run on digital duct tape:"),
+    ptBullet("bl-b1", "Banks that process millions of transactions daily still reconcile accounts manually"),
+    ptBullet("bl-b2", "Agricultural cooperatives that feed nations track inventory on WhatsApp"),
+    ptBullet("bl-b3", "NGOs that manage million-dollar budgets copy-paste between Excel and email"),
+    ptBullet("bl-b4", "Logistics companies that move goods across borders use paper receipts and phone calls"),
+    ptBullet("bl-b5", "Government agencies that serve millions still file reports in triplicate"),
+    ptBlock("p-b4", "normal", "This isn't just inefficiency — it's technological colonialism. Africa's brilliant minds are trapped solving problems that better software would eliminate entirely."),
+
+    // ── D. THE NEXIFY THESIS ────────────────────────────────────────────────
+    ptBlock("h2-d", "h2", "D. THE NEXIFY THESIS"),
+    ptBlock("p-d1", "normal", "We founded Nexify Africa on a simple but radical premise: African businesses deserve software as sophisticated as their ambitions."),
+    ptBlock("p-d2", "normal", "Not \"good enough for Africa\" software. Not \"emerging market\" compromises. Not hand-me-down solutions from markets that don't understand how innovation actually happens here."),
   ],
 };
 
