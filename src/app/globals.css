@@ -7,7 +7,6 @@
   --gradient-bottom: #003b8c;
   --tokens--border: #e5e7eb;
   --home-section-padding-y: clamp(4rem, 5vw, 6rem);
-  --home-section-gap: clamp(3.5rem, 5vw, 5rem);
   --home-section-inline: 1.5rem;
   --home-section-max: 1400px;
 }
@@ -708,18 +707,13 @@ html.lenis body {
   padding-inline: var(--home-section-inline);
 }
 
-.home-section-inner--features {
+.home-section-inner--features,
+.home-section-inner--services,
+.home-section-inner--faq {
   padding-top: var(--home-section-padding-y);
-  padding-bottom: calc(var(--home-section-gap) / 2);
-}
-
-.home-section-inner--services {
-  padding-top: calc(var(--home-section-gap) / 2);
-  padding-bottom: calc(var(--home-section-gap) / 2);
 }
 
 .home-section-inner--faq {
-  padding-top: calc(var(--home-section-gap) / 2);
   padding-bottom: var(--home-section-padding-y);
 }
 
@@ -929,21 +923,21 @@ html.lenis body {
   align-items: stretch;
 }
 
-@media (min-width: 640px) {
+/* Tablet: 2 columns (no subgrid — avoids single-column collapse on iPad) */
+@media (min-width: 768px) {
   .home-services-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-column-gap: 1.25rem;
     grid-row-gap: 1.25rem;
-    grid-template-rows: repeat(9, auto);
-    align-items: stretch;
   }
 
   .home-service-card {
-    grid-row: span 3;
-    grid-template-rows: subgrid;
+    min-width: 0;
+    --card-title-gap: clamp(5rem, 14vw, 180px);
   }
 }
 
+/* Desktop: 3 columns with subgrid row alignment */
 @media (min-width: 1024px) {
   .home-services-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -954,6 +948,7 @@ html.lenis body {
   }
 
   .home-service-card {
+    --card-title-gap: 250px;
     grid-row: span 3;
     grid-template-rows: subgrid;
     align-content: start;
