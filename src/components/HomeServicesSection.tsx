@@ -10,12 +10,15 @@ import { gsap, ScrollTrigger } from "@/lib/gsap";
 type ServiceItem = { id?: string; number: string; title: string; description: string };
 
 function ServiceCard({ number, title, description }: ServiceItem) {
+  const displayNumber = number.replace(/\.$/, "");
+
   return (
     <article className="home-service-card">
-      <p className="home-service-number" aria-hidden="true">
-        {number}
-      </p>
-      <div className="home-service-copy">
+      <h2 className="home-service-number">
+        {displayNumber}
+        <span className="home-service-number-dot">.</span>
+      </h2>
+      <div className="home-service-content">
         <h3 className="home-service-title">{title}</h3>
         <p className="home-service-description">{description}</p>
       </div>
@@ -51,17 +54,17 @@ export default function HomeServicesSection({ services, heading }: Props = {}) {
     }
 
     try {
-      gsap.set(cards, { opacity: 0, y: 40 });
+      gsap.set(cards, { opacity: 0, y: 48 });
 
       const ctx = gsap.context(() => {
         ScrollTrigger.batch(cards, {
-          start: "top 90%",
+          start: "top 88%",
           once: true,
           onEnter: (batch) => {
             gsap.to(batch, {
               opacity: 1,
               y: 0,
-              duration: 0.8,
+              duration: 0.85,
               stagger: 0.08,
               ease: "power4.out",
               overwrite: true,

@@ -890,7 +890,7 @@ html.lenis body {
 
 /* Homepage services grid */
 .home-services {
-  background-color: #ffffff;
+  background-color: #f4f6f8;
   font-family: var(--font-inter), system-ui, sans-serif;
 }
 
@@ -924,59 +924,86 @@ html.lenis body {
 .home-services-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1rem;
+  grid-column-gap: 1rem;
+  grid-row-gap: 1rem;
+  align-items: stretch;
 }
 
 @media (min-width: 640px) {
   .home-services-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1.25rem;
+    grid-column-gap: 1.25rem;
+    grid-row-gap: 1.25rem;
+    grid-template-rows: repeat(9, auto);
+    align-items: stretch;
+  }
+
+  .home-service-card {
+    grid-row: span 3;
+    grid-template-rows: subgrid;
   }
 }
 
 @media (min-width: 1024px) {
   .home-services-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 1.5rem;
+    grid-column-gap: 1.5rem;
+    grid-row-gap: 1.5rem;
+    grid-template-rows: repeat(6, auto);
+    align-items: stretch;
+  }
+
+  .home-service-card {
+    grid-row: span 3;
+    grid-template-rows: subgrid;
+    align-content: start;
   }
 }
 
 .home-service-card {
-  display: flex;
-  min-height: 20rem;
-  flex-direction: column;
-  border: 1px solid #e5e7eb;
+  --card-padding: 33px;
+  --card-title-gap: 250px;
+  --card-number-min: clamp(2.75rem, 5vw, 4rem);
+  --card-desc-lines: 3;
+  --card-desc-line-height: 1.55;
+  display: grid;
+  align-content: start;
+  grid-template-rows:
+    minmax(var(--card-number-min), auto)
+    auto
+    minmax(calc(var(--card-desc-lines) * var(--card-desc-line-height) * 1em), auto);
+  height: 100%;
+  padding: var(--card-padding);
   background-color: #ffffff;
-  padding: 2rem 1.75rem;
-}
-
-@media (min-width: 768px) {
-  .home-service-card {
-    min-height: 22rem;
-    padding: 2.25rem 2rem;
-  }
+  border: 1px solid var(--tokens--border);
+  will-change: transform, opacity;
 }
 
 .home-service-number {
+  grid-row: 1;
+  align-self: start;
   margin: 0;
-  flex-shrink: 0;
   font-family: var(--font-inter), system-ui, sans-serif;
-  font-size: clamp(2.5rem, 4vw, 3.25rem);
-  font-weight: 600;
+  font-size: clamp(2.75rem, 5vw, 4rem);
+  font-weight: 500;
   line-height: 1;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
   color: #003b8c;
 }
 
-.home-service-copy {
-  display: flex;
-  flex-direction: column;
-  gap: 0.625rem;
-  margin-top: auto;
+.home-service-number-dot {
+  color: #0c1018;
+}
+
+.home-service-content {
+  display: contents;
 }
 
 .home-service-title {
-  margin: 0;
+  grid-row: 2;
+  align-self: start;
+  margin: 0 0 0.625rem;
+  padding-top: var(--card-title-gap);
   font-family: var(--font-inter), system-ui, sans-serif;
   font-size: 1.125rem;
   font-weight: 700;
@@ -984,11 +1011,27 @@ html.lenis body {
   color: #0c1018;
 }
 
+@media (min-width: 768px) {
+  .home-service-title {
+    font-size: 1.25rem;
+  }
+}
+
 .home-service-description {
+  grid-row: 3;
+  align-self: start;
+  min-height: calc(var(--card-desc-lines) * var(--card-desc-line-height) * 1em);
   margin: 0;
-  font-size: 16px;
-  line-height: 1.55;
+  max-width: 22rem;
+  font-size: 0.9375rem;
+  line-height: var(--card-desc-line-height);
   color: #4b5563;
+}
+
+@media (min-width: 768px) {
+  .home-service-description {
+    font-size: 1rem;
+  }
 }
 
 /* Homepage FAQ */
