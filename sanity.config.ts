@@ -14,6 +14,7 @@ const SINGLETON_LABELS: Record<string, string> = {
 export default defineConfig({
   name: "nexify-africa",
   title: "Nexify Africa",
+  basePath: "/studio",
   projectId: "v0quzgcv",
   dataset: "production",
   plugins: [
