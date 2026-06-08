@@ -55,8 +55,8 @@ function TeamCard({ member, defaultImageUrl, index }: { member: TeamMemberItem; 
 type Props = {
   members?: TeamMemberItem[];
   defaultImageUrl?: string;
-  heroLines?: readonly string[];
-  heroRevealLines?: readonly string[];
+  heroLines?: string | readonly string[];
+  heroRevealLines?: string | readonly string[];
 };
 
 export default function TeamPage({ members, defaultImageUrl, heroLines, heroRevealLines }: Props = {}) {

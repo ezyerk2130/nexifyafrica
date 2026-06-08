@@ -7,17 +7,19 @@ export const careersPageType = defineType({
   fields: [
     defineField({
       name: "heroLines",
-      title: "Hero Lines",
-      type: "array",
-      of: [{ type: "string" }],
-      initialValue: ["Careers"],
+      title: "Hero Headline",
+      description: "One sentence; the layout wraps the words automatically.",
+      type: "text",
+      rows: 2,
+      initialValue: "Careers",
     }),
     defineField({
       name: "heroRevealLines",
-      title: "Hero Reveal Lines",
-      type: "array",
-      of: [{ type: "string" }],
-      initialValue: ["Open roles and opportunities", "are coming soon."],
+      title: "Hero Reveal Text",
+      description: "One block; the layout wraps it automatically.",
+      type: "text",
+      rows: 3,
+      initialValue: "Open roles and opportunities are coming soon.",
     }),
     defineField({
       name: "kicker",

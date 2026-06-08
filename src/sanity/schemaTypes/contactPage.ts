@@ -7,15 +7,17 @@ export const contactPageType = defineType({
   fields: [
     defineField({
       name: "heroLines",
-      title: "Hero Lines",
-      type: "array",
-      of: [{ type: "string" }],
+      title: "Hero Headline",
+      description: "One sentence; the layout wraps the words automatically.",
+      type: "text",
+      rows: 2,
     }),
     defineField({
       name: "heroRevealLines",
-      title: "Hero Reveal Lines",
-      type: "array",
-      of: [{ type: "string" }],
+      title: "Hero Reveal Text",
+      description: "One block; the layout wraps it automatically.",
+      type: "text",
+      rows: 3,
     }),
     defineField({
       name: "visualHeadline",

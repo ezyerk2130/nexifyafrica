@@ -150,12 +150,16 @@ h6 {
 
 @media (min-width: 1024px) {
   .hero-copy-inner {
-    max-width: none;
+    /* Constrained measure so the headline wraps to a few balanced lines.
+       Line breaks are decided by the layout, not authored in the content. */
+    max-width: 1200px;
   }
+}
 
-  .hero-display-line {
-    white-space: nowrap;
-  }
+.hero-display-line {
+  /* Let the words flow and wrap naturally based on the available width. */
+  white-space: normal;
+  text-wrap: balance;
 }
 
 .hero-word-mask {

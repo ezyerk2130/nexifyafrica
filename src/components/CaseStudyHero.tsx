@@ -1,8 +1,8 @@
 import PinnedHero from "@/components/PinnedHero";
 
 type CaseStudyHeroProps = {
-  lines: readonly string[];
-  revealLines: readonly string[];
+  lines: string | readonly string[];
+  revealLines: string | readonly string[];
 };
 
 export default function CaseStudyHero({ lines, revealLines }: CaseStudyHeroProps) {

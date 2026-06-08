@@ -15,18 +15,20 @@ export const homePageType = defineType({
     // ── Hero ──────────────────────────────────────────────────────────────────
     defineField({
       name: "heroLines",
-      title: "Hero Headline Lines",
-      description: "Each line appears stacked in the dark hero overlay",
-      type: "array",
-      of: [{ type: "string" }],
+      title: "Hero Headline",
+      description:
+        "The main hero headline. Type it as one sentence — the layout wraps the words automatically.",
+      type: "text",
+      rows: 2,
       group: "hero",
     }),
     defineField({
       name: "heroRevealLines",
-      title: "Hero Reveal Lines",
-      description: "Lines shown in the white reveal layer on scroll",
-      type: "array",
-      of: [{ type: "string" }],
+      title: "Hero Reveal Text",
+      description:
+        "Text shown in the white reveal layer on scroll. Type it as one block — the layout wraps it automatically.",
+      type: "text",
+      rows: 3,
       group: "hero",
     }),
     defineField({
@@ -99,16 +101,18 @@ export const homePageType = defineType({
     // ── Case Studies Page Hero ────────────────────────────────────────────────
     defineField({
       name: "caseStudiesHeroLines",
-      title: "Case Studies Page – Hero Lines",
-      type: "array",
-      of: [{ type: "string" }],
+      title: "Case Studies Page – Hero Headline",
+      description: "One sentence; the layout wraps the words automatically.",
+      type: "text",
+      rows: 2,
       group: "caseStudiesPage",
     }),
     defineField({
       name: "caseStudiesRevealLines",
-      title: "Case Studies Page – Reveal Lines",
-      type: "array",
-      of: [{ type: "string" }],
+      title: "Case Studies Page – Reveal Text",
+      description: "One block; the layout wraps it automatically.",
+      type: "text",
+      rows: 2,
       group: "caseStudiesPage",
     }),
   ],

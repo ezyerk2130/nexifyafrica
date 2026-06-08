@@ -5,8 +5,8 @@ import {
 } from "@/data/manifesto";
 
 type Props = {
-  lines?: readonly string[];
-  revealLines?: readonly string[];
+  lines?: string | readonly string[];
+  revealLines?: string | readonly string[];
 };
 
 export default function ManifestoHero({ lines, revealLines }: Props) {

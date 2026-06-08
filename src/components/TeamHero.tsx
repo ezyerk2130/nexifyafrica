@@ -2,8 +2,8 @@ import PinnedHero from "@/components/PinnedHero";
 import { TEAM_HERO_LINES, TEAM_HERO_REVEAL_LINES } from "@/data/team";
 
 type Props = {
-  lines?: readonly string[];
-  revealLines?: readonly string[];
+  lines?: string | readonly string[];
+  revealLines?: string | readonly string[];
 };
 
 export default function TeamHero({ lines, revealLines }: Props) {

@@ -29,8 +29,8 @@ export type CaseStudyContentBlock = {
 export type CaseStudyDetail = {
   slug: string;
   title: string;
-  heroLines: readonly string[];
-  heroRevealLines: readonly string[];
+  heroLines: string | readonly string[];
+  heroRevealLines: string | readonly string[];
   sidebar: CaseStudySidebar;
   sections: readonly CaseStudyContentBlock[];
 };

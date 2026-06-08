@@ -60,6 +60,10 @@ export type SanityCaseStudySidebar = {
   projectDuration: string;
 };
 
+// Hero copy is authored as a single field; arrays are still accepted for
+// backward compatibility with previously seeded multi-line content.
+export type HeroText = string | string[];
+
 export type SanityCaseStudyContentBlock = {
   id: { current: string };
   title: string;
@@ -76,8 +80,8 @@ export type SanityCaseStudyDetail = {
   _id: string;
   title: string;
   slug: { current: string };
-  heroLines: string[];
-  heroRevealLines: string[];
+  heroLines: HeroText;
+  heroRevealLines: HeroText;
   cardClient: string;
   metric: string;
   metricLabel: string;
@@ -118,8 +122,8 @@ export type SanityTeamMember = {
 
 export type SanityHomePage = {
   // Hero
-  heroLines?: string[];
-  heroRevealLines?: string[];
+  heroLines?: HeroText;
+  heroRevealLines?: HeroText;
   heroCtaText?: string;
   heroCtaHref?: string;
   // Principles
@@ -132,8 +136,8 @@ export type SanityHomePage = {
   faqHeadingItalic?: string;
   faqHeading?: string;
   // Case studies page
-  caseStudiesHeroLines?: string[];
-  caseStudiesRevealLines?: string[];
+  caseStudiesHeroLines?: HeroText;
+  caseStudiesRevealLines?: HeroText;
 };
 
 // Portable Text block — a flexible catch-all for the blog-style manifesto body
@@ -141,8 +145,8 @@ export type SanityHomePage = {
 export type ManifestoPTBlock = Record<string, any>;
 
 export type SanityManifestoPage = {
-  heroLines?: string[];
-  heroRevealLines?: string[];
+  heroLines?: HeroText;
+  heroRevealLines?: HeroText;
   title?: string;
   kicker?: string;
   lead?: string;
@@ -170,8 +174,8 @@ export type SanityContactForm = {
 };
 
 export type SanityContactPage = {
-  heroLines: string[];
-  heroRevealLines: string[];
+  heroLines: HeroText;
+  heroRevealLines: HeroText;
   visualHeadline: string;
   visualDescription: string;
   visualImage?: SanityImageRef;
@@ -180,8 +184,8 @@ export type SanityContactPage = {
 };
 
 export type SanityTeamPage = {
-  heroLines: string[];
-  heroRevealLines: string[];
+  heroLines: HeroText;
+  heroRevealLines: HeroText;
   defaultTeamImage?: SanityImageRef;
 };
 
@@ -206,8 +210,8 @@ export type SanitySiteSettings = {
 };
 
 export type SanityCareersPage = {
-  heroLines?: string[];
-  heroRevealLines?: string[];
+  heroLines?: HeroText;
+  heroRevealLines?: HeroText;
   kicker?: string;
   description?: string;
   primaryCtaLabel?: string;

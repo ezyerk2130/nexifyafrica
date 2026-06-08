@@ -64,8 +64,9 @@ const caseStudy = {
   _type: "caseStudy" as const,
   title: "Modernizing Healthcare Security with SecOps",
   slug: { _type: "slug" as const, current: "modernizing-healthcare-security" },
-  heroLines: ["Modernizing Healthcare", "Security with SecOps"],
-  heroRevealLines: ["Healthcare organizations need more than security tools—", "they need operational trust."],
+  heroLines: "Modernizing Healthcare Security with SecOps",
+  heroRevealLines:
+    "Healthcare organizations need more than security tools — they need operational trust.",
   cardClient: "Healthcare",
   metric: "60%",
   metricLabel: "reduction in false positives",
@@ -89,12 +90,9 @@ const homePage = {
   _id: "homePage",
   _type: "homePage" as const,
   // Hero
-  heroLines: ["A Force For Progress in Tech", "Across Africa"],
-  heroRevealLines: [
-    "We create strategies, brand systems, digital",
-    "products, and experiences for the world's",
-    "most disruptive thinkers.",
-  ],
+  heroLines: "A Force For Progress in Tech Across Africa",
+  heroRevealLines:
+    "We create strategies, brand systems, digital products, and experiences for the world's most disruptive thinkers.",
   heroCtaText: "Our work",
   heroCtaHref: "#work",
   // Principles
@@ -108,11 +106,8 @@ const homePage = {
   faqHeadingItalic: "Questions?",
   faqHeading: "Glad you asked.",
   // Case studies page hero
-  caseStudiesHeroLines: [
-    "Stories of change —",
-    "and the strategy behind them",
-  ],
-  caseStudiesRevealLines: ["Real outcomes.", "Measured impact."],
+  caseStudiesHeroLines: "Stories of change — and the strategy behind them",
+  caseStudiesRevealLines: "Real outcomes. Measured impact.",
 };
 
 // Helpers to build Portable Text blocks
@@ -140,8 +135,8 @@ function ptBullet(key: string, text: string) {
 const manifestoPage = {
   _id: "manifestoPage",
   _type: "manifestoPage" as const,
-  heroLines: ["Our manifesto"],
-  heroRevealLines: ["Where Did Africa's", "Digital Promise Go?"],
+  heroLines: "Our manifesto",
+  heroRevealLines: "Where Did Africa's Digital Promise Go?",
   title: "Where Did Africa's Digital Promise Go?",
   kicker: "Our Manifesto",
   lead: "We build software for the leaders writing Africa's next chapter because the continent that gave the world mobile money deserves technology that matches its ambition.",
@@ -174,15 +169,15 @@ const manifestoPage = {
 const teamPage = {
   _id: "teamPage",
   _type: "teamPage" as const,
-  heroLines: ["The team behind"],
-  heroRevealLines: ["A senior team.", "No hand-offs, no layers.", "You work directly with us"],
+  heroLines: "The team behind",
+  heroRevealLines: "A senior team. No hand-offs, no layers. You work directly with us",
 };
 
 const contactPage = {
   _id: "contactPage",
   _type: "contactPage" as const,
-  heroLines: ["Contact"],
-  heroRevealLines: ["Let's start", "the conversation"],
+  heroLines: "Contact",
+  heroRevealLines: "Let's start the conversation",
   visualHeadline: "Got an idea? Let's build it right.",
   visualDescription: "From strategy and brand systems to full product development, we help Africa's most ambitious teams build software that converts, scales, and stands out.",
   form: {
@@ -233,8 +228,8 @@ const siteSettings = {
 const careersPage = {
   _id: "careersPage",
   _type: "careersPage" as const,
-  heroLines: ["Careers"],
-  heroRevealLines: ["Open roles and opportunities", "are coming soon."],
+  heroLines: "Careers",
+  heroRevealLines: "Open roles and opportunities are coming soon.",
   kicker: "Coming soon",
   description: "Open roles and opportunities are coming soon.",
   primaryCtaLabel: "Back to home",

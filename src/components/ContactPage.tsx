@@ -38,8 +38,8 @@ const DEFAULT_FORM: Required<ContactForm> = {
 };
 
 type Props = {
-  heroLines?: readonly string[];
-  heroRevealLines?: readonly string[];
+  heroLines?: string | readonly string[];
+  heroRevealLines?: string | readonly string[];
   visual?: ContactVisual;
   details?: ContactDetail[];
   form?: ContactForm;

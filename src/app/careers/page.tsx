@@ -7,22 +7,26 @@ export const metadata: Metadata = {
   description: "Join Nexify Africa and help shape the future of tech in Africa.",
 };
 
+function toText(value?: string | string[]): string {
+  if (Array.isArray(value)) return value.join(" ");
+  return value ?? "";
+}
+
 export default async function CareersPage() {
   const data = await getCareersPage().catch(() => null);
 
-  const title = data?.heroLines?.[0] ?? "Careers";
+  const title = toText(data?.heroLines).trim() || "Careers";
   const description =
     data?.description ?? "Open roles and opportunities are coming soon.";
-  const revealLines =
-    data?.heroRevealLines && data.heroRevealLines.length > 0
-      ? data.heroRevealLines
-      : ["Open roles and opportunities", "are coming soon."];
+  const revealText =
+    toText(data?.heroRevealLines).trim() ||
+    "Open roles and opportunities are coming soon.";
 
   return (
     <ComingSoonPage
       title={title}
       description={description}
-      revealLines={revealLines}
+      revealLines={revealText}
       kicker={data?.kicker ?? "Coming soon"}
       primaryCta={{
         label: data?.primaryCtaLabel ?? "Back to home",

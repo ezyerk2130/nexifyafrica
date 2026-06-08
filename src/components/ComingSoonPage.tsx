@@ -9,7 +9,7 @@ type Cta = { label: string; href: string };
 type ComingSoonPageProps = {
   title: string;
   description?: string;
-  revealLines?: readonly string[];
+  revealLines?: string | readonly string[];
   kicker?: string;
   primaryCta?: Cta;
   secondaryCta?: Cta;
@@ -23,15 +23,11 @@ export default function ComingSoonPage({
   primaryCta = { label: "Back to home", href: "/" },
   secondaryCta = { label: "View case studies", href: "/case-studies" },
 }: ComingSoonPageProps) {
-  const heroRevealLines =
-    revealLines ??
-    (description.includes(".")
-      ? description.split(/(?<=\.)\s+/).filter(Boolean)
-      : [description]);
+  const heroReveal = revealLines ?? description;
 
   return (
     <>
-      <PinnedHero lines={[title]} revealLines={heroRevealLines} />
+      <PinnedHero lines={title} revealLines={heroReveal} />
 
       <section className="bg-[#F4F6F8] text-neutral-900">
         <div className="mx-auto flex min-h-[50vh] max-w-[1400px] flex-col items-center justify-center px-6 py-24 text-center sm:px-8 lg:px-12 lg:py-32">

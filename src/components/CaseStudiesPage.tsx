@@ -18,8 +18,8 @@ type CardItem = {
 
 type Props = {
   cards?: CardItem[];
-  heroLines?: string[];
-  heroRevealLines?: string[];
+  heroLines?: string | string[];
+  heroRevealLines?: string | string[];
 };
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { gsap, ScrollTrigger } from "@/lib/gsap";

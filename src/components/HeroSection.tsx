@@ -3,23 +3,22 @@
 import PinnedHero from "@/components/PinnedHero";
 import { safeHref } from "@/lib/url";
 
-const DEFAULT_LINES = [
-  "A Force For Progress in Tech",
-  "Across Africa",
-] as const;
+const DEFAULT_LINES = "A Force For Progress in Tech Across Africa";
 
-const DEFAULT_REVEAL_LINES = [
-  "We create strategies, brand systems, digital",
-  "products, and experiences for the world's",
-  "most disruptive thinkers.",
-] as const;
+const DEFAULT_REVEAL_LINES =
+  "We create strategies, brand systems, digital products, and experiences for the world's most disruptive thinkers.";
 
 const DEFAULT_CTA_TEXT = "Our work";
 const DEFAULT_CTA_HREF = "#work";
 
+function hasText(value?: string | string[]): boolean {
+  if (Array.isArray(value)) return value.length > 0;
+  return Boolean(value && value.trim());
+}
+
 interface HeroSectionProps {
-  lines?: string[];
-  revealLines?: string[];
+  lines?: string | string[];
+  revealLines?: string | string[];
   ctaText?: string;
   ctaHref?: string;
 }
@@ -30,9 +29,8 @@ export default function HeroSection({
   ctaText,
   ctaHref,
 }: HeroSectionProps) {
-  const heroLines = lines && lines.length > 0 ? lines : DEFAULT_LINES;
-  const heroReveal =
-    revealLines && revealLines.length > 0 ? revealLines : DEFAULT_REVEAL_LINES;
+  const heroLines = hasText(lines) ? lines! : DEFAULT_LINES;
+  const heroReveal = hasText(revealLines) ? revealLines! : DEFAULT_REVEAL_LINES;
   const buttonText = ctaText || DEFAULT_CTA_TEXT;
   const buttonHref = safeHref(ctaHref || DEFAULT_CTA_HREF, DEFAULT_CTA_HREF);
 

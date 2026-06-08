@@ -143,8 +143,8 @@ const portableTextComponents: PortableTextComponents = {
 };
 
 type Props = {
-  heroLines?: readonly string[];
-  heroRevealLines?: readonly string[];
+  heroLines?: string | readonly string[];
+  heroRevealLines?: string | readonly string[];
   kicker?: string;
   lead?: string;
   body?: ManifestoPTBlock[];

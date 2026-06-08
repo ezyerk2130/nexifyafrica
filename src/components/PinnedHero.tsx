@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { Fragment, useEffect, useRef, type ReactNode } from "react";
 import SiteNav from "@/components/SiteNav";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
@@ -29,37 +29,44 @@ const INTRO_WORD_REVEAL = {
 const HERO_COPY_LAYER_CLASS =
   "hero-copy-layer pointer-events-none absolute inset-0 flex w-full items-center justify-center px-6 pb-24 sm:px-8 sm:pb-0 lg:justify-start lg:px-16";
 
-function HeroLine({
-  line,
+// Hero copy is authored as a single field. We split it into words so each can
+// animate independently, while letting the words flow and wrap naturally —
+// the layout decides the line breaks, not the content.
+function toHeroText(value: string | readonly string[] | undefined | null): string {
+  if (Array.isArray(value)) return value.join(" ");
+  return ((value as string | undefined | null) ?? "").toString();
+}
+
+function HeroWords({
+  text,
   wordClassName,
   className,
 }: {
-  line: string;
+  text: string;
   wordClassName: string;
   className?: string;
 }) {
-  const words = (line ?? "").split(" ");
+  const words = text.trim().split(/\s+/).filter(Boolean);
 
   return (
     <span className={`block ${className ?? ""}`}>
       {words.map((word, wordIndex) => (
-        <span
-          key={`${line}-${wordIndex}`}
-          className="hero-word-mask inline-block align-top"
-        >
-          <span className={`${wordClassName} inline-block will-change-transform`}>
-            {word}
-            {wordIndex < words.length - 1 ? "\u00A0" : ""}
+        <Fragment key={`${word}-${wordIndex}`}>
+          {wordIndex > 0 ? " " : null}
+          <span className="hero-word-mask inline-block align-top">
+            <span className={`${wordClassName} inline-block will-change-transform`}>
+              {word}
+            </span>
           </span>
-        </span>
+        </Fragment>
       ))}
     </span>
   );
 }
 
 export type PinnedHeroProps = {
-  lines: readonly string[];
-  revealLines?: readonly string[];
+  lines: string | readonly string[];
+  revealLines?: string | readonly string[];
   navVariant?: "dark" | "light";
   cta?: ReactNode;
   sectionId?: string;
@@ -79,7 +86,9 @@ export default function PinnedHero({
   const copyRevealRef = useRef<HTMLDivElement>(null);
   const chromeRef = useRef<HTMLDivElement>(null);
   const whiteOverlayRef = useRef<HTMLDivElement>(null);
-  const hasReveal = Boolean(revealLines?.length);
+  const headlineText = toHeroText(lines);
+  const revealText = toHeroText(revealLines);
+  const hasReveal = revealText.trim().length > 0;
 
   useEffect(() => {
     const wrapper = wrapperRef.current;
@@ -384,31 +393,25 @@ export default function PinnedHero({
           className={`${HERO_COPY_LAYER_CLASS} z-[4] opacity-100 will-change-[transform,opacity]`}
         >
           <h1 className="hero-copy-inner">
-            {(lines ?? []).map((line) => (
-              <HeroLine
-                key={line}
-                line={line}
-                wordClassName="hero-word"
-                className="hero-display-line hero-intro-line"
-              />
-            ))}
+            <HeroWords
+              text={headlineText}
+              wordClassName="hero-word"
+              className="hero-display-line hero-intro-line"
+            />
           </h1>
         </div>
 
-        {hasReveal && revealLines ? (
+        {hasReveal ? (
           <div
             ref={copyRevealRef}
             className={`${HERO_COPY_LAYER_CLASS} hero-copy-reveal-layer z-[5] translate-y-8 opacity-0`}
           >
             <div className="hero-copy-inner">
-              {revealLines.map((line) => (
-                <HeroLine
-                  key={line}
-                  line={line}
-                  wordClassName="hero-word-reveal"
-                  className="hero-display-line hero-reveal-line"
-                />
-              ))}
+              <HeroWords
+                text={revealText}
+                wordClassName="hero-word-reveal"
+                className="hero-display-line hero-reveal-line"
+              />
             </div>
           </div>
         ) : null}

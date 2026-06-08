@@ -11,8 +11,8 @@ const DEFAULT_REVEAL_LINES = [
 ] as const;
 
 interface CaseStudiesHeroProps {
-  lines?: string[];
-  revealLines?: string[];
+  lines?: string | string[];
+  revealLines?: string | string[];
 }
 
 export default function CaseStudiesHero({ lines, revealLines }: CaseStudiesHeroProps = {}) {
