@@ -105,8 +105,9 @@ export default function NextSection({ principles, headingBefore, headingHighligh
       });
     };
 
+    let ctx: ReturnType<typeof gsap.context> | undefined;
     try {
-      const ctx = gsap.context(() => {
+      ctx = gsap.context(() => {
         if (!prefersReducedMotion) {
           gsap.set(marquee, { opacity: 0 });
           ScrollTrigger.create({
@@ -137,12 +138,13 @@ export default function NextSection({ principles, headingBefore, headingHighligh
       return () => {
         marqueeTween?.kill();
         resizeObserver.disconnect();
-        ctx.revert();
+        ctx?.revert();
       };
     } catch (error) {
       if (process.env.NODE_ENV === "development") {
         console.warn("[NextSection] Animation unavailable:", error);
       }
+      ctx?.revert();
       gsap.set(marquee, { opacity: 1, x: 0 });
       heading?.querySelectorAll<HTMLElement>(".hero-word").forEach((word) => {
         gsap.set(word, { y: "0%" });

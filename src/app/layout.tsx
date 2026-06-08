@@ -94,7 +94,14 @@ export default function RootLayout({
             }
           `}</style>
         </noscript>
-        <SmoothScrollProvider>{children}</SmoothScrollProvider>
+        <a href="#main-content" className="skip-link">
+          Skip to content
+        </a>
+        <SmoothScrollProvider>
+          <div id="main-content" tabIndex={-1}>
+            {children}
+          </div>
+        </SmoothScrollProvider>
         <Analytics />
         <SpeedInsights />
       </body>

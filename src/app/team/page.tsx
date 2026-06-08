@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import TeamPage from "@/components/TeamPage";
 import { getTeamMembers, getTeamPage } from "@/sanity/lib/queries";
-import { urlFor } from "@/sanity/lib/image";
+import { imageUrl } from "@/sanity/lib/image";
 
 export const metadata: Metadata = {
   title: "Team",
@@ -22,14 +22,12 @@ export default async function TeamRoute() {
             id: m._id,
             name: m.name,
             role: m.role,
-            portraitUrl: m.portrait?.asset ? urlFor(m.portrait.asset).width(600).url() : undefined,
+            portraitUrl: imageUrl(m.portrait?.asset, 600) ?? undefined,
           })),
         }
       : {};
 
-  const defaultImageUrl = teamPage?.defaultTeamImage?.asset
-    ? urlFor(teamPage.defaultTeamImage.asset).width(600).url()
-    : undefined;
+  const defaultImageUrl = imageUrl(teamPage?.defaultTeamImage?.asset, 600) ?? undefined;
 
   return (
     <TeamPage

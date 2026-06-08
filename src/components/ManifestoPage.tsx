@@ -5,7 +5,9 @@ import { PortableText, type PortableTextComponents } from "@portabletext/react";
 import Footer from "@/components/Footer";
 import ManifestoHero from "@/components/ManifestoHero";
 import { MANIFESTO_HERO } from "@/data/manifesto";
-import { urlFor } from "@/sanity/lib/image";
+import { imageUrl } from "@/sanity/lib/image";
+import { isSafeHref } from "@/lib/url";
+import type { ManifestoPTBlock } from "@/sanity/lib/queries";
 
 const LAYOUT_INNER =
   "mx-auto w-full max-w-[1400px] px-6 sm:px-8 lg:px-12";
@@ -69,9 +71,6 @@ type ImageSegment = {
 };
 type Segment = TextSegment | ImageSegment;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type ManifestoPTBlock = Record<string, any>;
-
 function splitAtImages(body: ManifestoPTBlock[]): Segment[] {
   const segments: Segment[] = [];
   let text: ManifestoPTBlock[] = [];
@@ -124,6 +123,23 @@ const portableTextComponents: PortableTextComponents = {
     bullet: ({ children }) => <li>{children}</li>,
     number: ({ children }) => <li>{children}</li>,
   },
+  marks: {
+    link: ({ value, children }) => {
+      const href = value?.href as string | undefined;
+      if (!isSafeHref(href)) {
+        return <>{children}</>;
+      }
+      const isExternal = /^https?:\/\//i.test(href!.trim());
+      return (
+        <a
+          href={href}
+          {...(isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+        >
+          {children}
+        </a>
+      );
+    },
+  },
 };
 
 type Props = {
@@ -159,9 +175,8 @@ export default function ManifestoPage({ heroLines, heroRevealLines, kicker, lead
         {segments.map((segment, i) => {
           if (segment.type === "image") {
             const { block } = segment;
-            const src = block.asset
-              ? urlFor(block as Parameters<typeof urlFor>[0]).width(1400).url()
-              : undefined;
+            const src =
+              imageUrl(block as Parameters<typeof imageUrl>[0], 1400) ?? undefined;
             return (
               <ManifestoImage
                 key={(block._key as string) ?? i}

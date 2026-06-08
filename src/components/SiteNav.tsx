@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useId, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { CONTACT_LINK, NAV_LINKS } from "@/config/navigation";
 
 export { NAV_LINKS, CONTACT_LINK };
@@ -17,6 +17,8 @@ export default function SiteNav({
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuId = useId();
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
   const isLight = variant === "light";
   const logoColor = isLight ? "text-[#003B8C]" : "text-white";
   const itemClass = animate
@@ -31,9 +33,45 @@ export default function SiteNav({
   useEffect(() => {
     if (!menuOpen) return;
 
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    const dialog = dialogRef.current;
+    const toggle = toggleRef.current;
+
+    const getFocusable = () =>
+      dialog
+        ? Array.from(
+            dialog.querySelectorAll<HTMLElement>(
+              'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+            ),
+          )
+        : [];
+
+    // Move focus into the dialog when it opens.
+    getFocusable()[0]?.focus();
+
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         closeMenu();
+        return;
+      }
+
+      if (event.key !== "Tab") return;
+
+      const focusable = getFocusable();
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+
+      if (event.shiftKey) {
+        if (active === first || !dialog?.contains(active)) {
+          event.preventDefault();
+          last.focus();
+        }
+      } else if (active === last) {
+        event.preventDefault();
+        first.focus();
       }
     };
 
@@ -43,6 +81,8 @@ export default function SiteNav({
     return () => {
       document.body.style.overflow = "";
       window.removeEventListener("keydown", handleKeyDown);
+      // Return focus to the toggle when the menu closes.
+      (toggle ?? previouslyFocused)?.focus?.();
     };
   }, [closeMenu, menuOpen]);
 
@@ -92,6 +132,7 @@ export default function SiteNav({
           {CONTACT_LINK.label}
         </Link>
         <button
+          ref={toggleRef}
           type="button"
           className="relative flex h-8 w-8 items-center justify-center p-1"
           aria-label={menuOpen ? "Close menu" : "Open menu"}
@@ -112,12 +153,22 @@ export default function SiteNav({
 
       {menuOpen ? (
         <div
+          ref={dialogRef}
           id={menuId}
           className="fixed inset-0 z-50 bg-[#003B8C] px-6 pt-24 sm:px-8 lg:hidden"
           role="dialog"
           aria-modal="true"
           aria-label="Mobile navigation"
         >
+          <button
+            type="button"
+            className="absolute right-6 top-6 flex h-10 w-10 items-center justify-center text-white sm:right-8"
+            aria-label="Close menu"
+            onClick={closeMenu}
+          >
+            <span className="absolute block h-px w-6 rotate-45 bg-white" aria-hidden="true" />
+            <span className="absolute block h-px w-6 -rotate-45 bg-white" aria-hidden="true" />
+          </button>
           <nav
             className="flex flex-col gap-6 text-lg text-white"
             aria-label="Mobile navigation"

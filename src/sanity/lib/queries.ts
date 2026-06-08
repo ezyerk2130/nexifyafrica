@@ -7,9 +7,31 @@ async function sanityFetch<T>(
   params: Record<string, unknown> = {},
   tags: string[] = [],
 ): Promise<T> {
-  return client.fetch<T>(query, params, {
-    next: { tags: tags.length ? tags : ["sanity"] },
-  });
+  try {
+    return await client.fetch<T>(query, params, {
+      next: { tags: tags.length ? tags : ["sanity"] },
+    });
+  } catch (err) {
+    console.error("[Sanity] fetch failed", { tags, error: err });
+    throw err;
+  }
+}
+
+/**
+ * List-query variant: never throws. Logs and returns an empty array on failure
+ * so list-rendering pages degrade gracefully to their static fallbacks.
+ */
+async function sanityFetchList<T>(
+  query: string,
+  params: Record<string, unknown> = {},
+  tags: string[] = [],
+): Promise<T[]> {
+  try {
+    const result = await sanityFetch<T[]>(query, params, tags);
+    return Array.isArray(result) ? result : [];
+  } catch {
+    return [];
+  }
 }
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -173,7 +195,7 @@ const CASE_STUDY_SECTION_FIELDS = `
 `;
 
 export async function getCaseStudyCards(): Promise<SanityCaseStudyCard[]> {
-  return sanityFetch(
+  return sanityFetchList<SanityCaseStudyCard>(
     `*[_type == "caseStudy"] | order(title asc) { ${CASE_STUDY_CARD_FIELDS} }`,
     {},
     ["caseStudy"],
@@ -181,12 +203,14 @@ export async function getCaseStudyCards(): Promise<SanityCaseStudyCard[]> {
 }
 
 export async function getAllCaseStudySlugsFromSanity(): Promise<string[]> {
-  const results = await sanityFetch<Array<{ slug: { current: string } }>>(
+  const results = await sanityFetchList<{ slug?: { current?: string } }>(
     `*[_type == "caseStudy"] { slug }`,
     {},
     ["caseStudy"],
   );
-  return results.map((r) => r.slug.current);
+  return results
+    .map((r) => r.slug?.current)
+    .filter((s): s is string => typeof s === "string" && s.length > 0);
 }
 
 export async function getCaseStudyBySlugFromSanity(
@@ -212,7 +236,7 @@ export async function getCaseStudyBySlugFromSanity(
 }
 
 export async function getServices(): Promise<SanityService[]> {
-  return sanityFetch(
+  return sanityFetchList<SanityService>(
     `*[_type == "service"] | order(order asc) { _id, number, title, description, order }`,
     {},
     ["service"],
@@ -220,7 +244,7 @@ export async function getServices(): Promise<SanityService[]> {
 }
 
 export async function getFaqItems(): Promise<SanityFaqItem[]> {
-  return sanityFetch(
+  return sanityFetchList<SanityFaqItem>(
     `*[_type == "faqItem"] | order(order asc) { _id, question, answer, order }`,
     {},
     ["faqItem"],
@@ -228,7 +252,7 @@ export async function getFaqItems(): Promise<SanityFaqItem[]> {
 }
 
 export async function getPrinciples(): Promise<SanityPrinciple[]> {
-  return sanityFetch(
+  return sanityFetchList<SanityPrinciple>(
     `*[_type == "principle"] | order(order asc) { _id, icon, title, description, order }`,
     {},
     ["principle"],
@@ -236,7 +260,7 @@ export async function getPrinciples(): Promise<SanityPrinciple[]> {
 }
 
 export async function getTeamMembers(): Promise<SanityTeamMember[]> {
-  return sanityFetch(
+  return sanityFetchList<SanityTeamMember>(
     `*[_type == "teamMember"] | order(order asc) { _id, name, role, portrait, order }`,
     {},
     ["teamMember"],

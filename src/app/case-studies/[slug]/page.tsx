@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import CaseStudyDetailPage from "@/components/CaseStudyDetailPage";
-import { urlFor } from "@/sanity/lib/image";
+import { imageUrl } from "@/sanity/lib/image";
 import {
   getAllCaseStudySlugsFromSanity,
   getCaseStudyBySlugFromSanity,
@@ -29,7 +29,7 @@ export async function generateMetadata({
   const { slug } = await params;
 
   const sanityStudy = await getCaseStudyBySlugFromSanity(slug).catch(() => null);
-  if (sanityStudy) {
+  if (sanityStudy?.slug?.current) {
     const overview = sanityStudy.sections?.find((s) => s.id?.current === "overview");
     return {
       title: sanityStudy.title,
@@ -46,7 +46,7 @@ export async function generateMetadata({
     };
   }
 
-  return { title: "Case Study" };
+  notFound();
 }
 
 export default async function CaseStudyRoute({ params }: CaseStudyRouteProps) {
@@ -57,7 +57,8 @@ export default async function CaseStudyRoute({ params }: CaseStudyRouteProps) {
 
   let study: CaseStudyDetail | undefined;
 
-  if (sanityStudy) {
+  // Use Sanity only when it returns a usable slug; otherwise fall back to local data.
+  if (sanityStudy?.slug?.current) {
     study = {
       slug: sanityStudy.slug.current,
       title: sanityStudy.title,
@@ -69,19 +70,22 @@ export default async function CaseStudyRoute({ params }: CaseStudyRouteProps) {
         services: sanityStudy.sidebar?.services ?? "",
         projectDuration: sanityStudy.sidebar?.projectDuration ?? "",
       },
-      sections: (sanityStudy.sections ?? []).map((section) => ({
-        id: section.id?.current ?? section.id as unknown as string,
-        title: section.title,
-        paragraphs: section.paragraphs ?? [],
-        bullets: section.bullets,
-        image: section.image?.asset
-          ? {
-              src: urlFor(section.image.asset).url(),
-              alt: section.image.alt,
-              variant: section.image.variant ?? "wide",
-            }
-          : undefined,
-      })),
+      sections: (sanityStudy.sections ?? []).map((section) => {
+        const src = imageUrl(section.image?.asset);
+        return {
+          id: section.id?.current ?? (section.id as unknown as string),
+          title: section.title,
+          paragraphs: section.paragraphs ?? [],
+          bullets: section.bullets,
+          image: src
+            ? {
+                src,
+                alt: section.image?.alt,
+                variant: section.image?.variant ?? "wide",
+              }
+            : undefined,
+        };
+      }),
     };
   } else {
     study = getCaseStudyBySlug(slug);

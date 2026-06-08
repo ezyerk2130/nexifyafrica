@@ -6,6 +6,7 @@ import ContactHero from "@/components/ContactHero";
 import ContactPhoneField from "@/components/ContactPhoneField";
 import Footer from "@/components/Footer";
 import { CONTACT_DETAILS, CONTACT_VISUAL } from "@/data/contact";
+import { isSafeHref } from "@/lib/url";
 
 type ContactIconType = "email" | "phone" | "address";
 type ContactDetail = { id: string; title: string; lines: readonly string[]; href?: string };
@@ -158,33 +159,37 @@ export default function ContactPage({ heroLines, heroRevealLines, visual, detail
             </form>
 
             <dl className="contact-details">
-              {DETAILS.map((item) => (
-                <div key={item.id} className="contact-detail">
-                  <span className="contact-detail-icon">
-                    <ContactIcon type={item.id as ContactIconType} />
-                  </span>
-                  <div className="contact-detail-copy">
-                    <dt className="contact-detail-label">{item.title}</dt>
-                    <dd className="contact-detail-value">
-                      {"href" in item && item.href ? (
-                        <a href={item.href} className="contact-detail-link">
-                          {item.lines.map((line) => (
+              {DETAILS.map((item) => {
+                const lines = item.lines ?? [];
+                const linkable = "href" in item && isSafeHref(item.href);
+                return (
+                  <div key={item.id} className="contact-detail">
+                    <span className="contact-detail-icon">
+                      <ContactIcon type={item.id as ContactIconType} />
+                    </span>
+                    <div className="contact-detail-copy">
+                      <dt className="contact-detail-label">{item.title}</dt>
+                      <dd className="contact-detail-value">
+                        {linkable ? (
+                          <a href={item.href} className="contact-detail-link">
+                            {lines.map((line) => (
+                              <span key={line} className="contact-detail-line">
+                                {line}
+                              </span>
+                            ))}
+                          </a>
+                        ) : (
+                          lines.map((line) => (
                             <span key={line} className="contact-detail-line">
                               {line}
                             </span>
-                          ))}
-                        </a>
-                      ) : (
-                        item.lines.map((line) => (
-                          <span key={line} className="contact-detail-line">
-                            {line}
-                          </span>
-                        ))
-                      )}
-                    </dd>
+                          ))
+                        )}
+                      </dd>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </dl>
           </div>
         </div>

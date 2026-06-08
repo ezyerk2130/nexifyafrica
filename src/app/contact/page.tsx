@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import ContactPage from "@/components/ContactPage";
 import { getContactPage } from "@/sanity/lib/queries";
-import { urlFor } from "@/sanity/lib/image";
+import { imageUrl } from "@/sanity/lib/image";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -20,9 +20,8 @@ export default async function ContactRoute() {
     data.visualHeadline || data.visualDescription
       ? {
           visual: {
-            imageSrc: data.visualImage?.asset
-              ? urlFor(data.visualImage.asset).url()
-              : "/images/contact/hero-bg.avif",
+            imageSrc:
+              imageUrl(data.visualImage?.asset) ?? "/images/contact/hero-bg.avif",
             headline: data.visualHeadline ?? "",
             description: data.visualDescription ?? "",
           },

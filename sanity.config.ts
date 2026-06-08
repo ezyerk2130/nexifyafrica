@@ -44,7 +44,8 @@ export default defineConfig({
             ),
           ]),
     }),
-    visionTool(),
+    // Vision (GROQ playground) is a powerful query tool — only expose it in development.
+    ...(process.env.NODE_ENV === "development" ? [visionTool()] : []),
   ],
   schema: {
     types: schemaTypes,

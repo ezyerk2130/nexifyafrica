@@ -78,10 +78,11 @@ export default function TeamPage({ members, defaultImageUrl, heroLines, heroReve
       return;
     }
 
+    let ctx: ReturnType<typeof gsap.context> | undefined;
     try {
       gsap.set(cards, { opacity: 0, y: 56 });
 
-      const ctx = gsap.context(() => {
+      ctx = gsap.context(() => {
         ScrollTrigger.batch(cards, {
           start: "top 90%",
           once: true,
@@ -99,12 +100,13 @@ export default function TeamPage({ members, defaultImageUrl, heroLines, heroReve
       }, section);
 
       return () => {
-        ctx.revert();
+        ctx?.revert();
       };
     } catch (error) {
       if (process.env.NODE_ENV === "development") {
         console.warn("[TeamPage] Animation unavailable:", error);
       }
+      ctx?.revert();
       gsap.set(cards, { opacity: 1, y: 0 });
     }
   }, [prefersReducedMotion]);

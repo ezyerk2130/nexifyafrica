@@ -38,7 +38,7 @@ function HeroLine({
   wordClassName: string;
   className?: string;
 }) {
-  const words = line.split(" ");
+  const words = (line ?? "").split(" ");
 
   return (
     <span className={`block ${className ?? ""}`}>
@@ -128,6 +128,7 @@ export default function PinnedHero({
       return;
     }
 
+    let ctx: ReturnType<typeof gsap.context> | undefined;
     try {
       gsap.set(section, {
         "--gradient-top": GRADIENT_START.top,
@@ -146,7 +147,7 @@ export default function PinnedHero({
       gsap.set(introLines, { color: "#ffffff" });
       gsap.set(whiteOverlay, { opacity: 0 });
 
-      const ctx = gsap.context(() => {
+      ctx = gsap.context(() => {
         const loadTl = gsap.timeline({ defaults: { ease: "power4.out" } });
 
         loadTl.fromTo(
@@ -349,13 +350,14 @@ export default function PinnedHero({
       requestAnimationFrame(() => ScrollTrigger.refresh());
 
       return () => {
-        ctx.revert();
+        ctx?.revert();
         ScrollTrigger.refresh();
       };
     } catch (error) {
       if (process.env.NODE_ENV === "development") {
         console.warn("[PinnedHero] Animation unavailable:", error);
       }
+      ctx?.revert();
       setFinalState();
     }
   }, [hasReveal, prefersReducedMotion]);
@@ -382,7 +384,7 @@ export default function PinnedHero({
           className={`${HERO_COPY_LAYER_CLASS} z-[4] opacity-100 will-change-[transform,opacity]`}
         >
           <h1 className="hero-copy-inner">
-            {lines.map((line) => (
+            {(lines ?? []).map((line) => (
               <HeroLine
                 key={line}
                 line={line}

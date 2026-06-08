@@ -1,6 +1,7 @@
 "use client";
 
 import PinnedHero from "@/components/PinnedHero";
+import { safeHref } from "@/lib/url";
 
 const DEFAULT_LINES = [
   "A Force For Progress in Tech",
@@ -33,7 +34,7 @@ export default function HeroSection({
   const heroReveal =
     revealLines && revealLines.length > 0 ? revealLines : DEFAULT_REVEAL_LINES;
   const buttonText = ctaText || DEFAULT_CTA_TEXT;
-  const buttonHref = ctaHref || DEFAULT_CTA_HREF;
+  const buttonHref = safeHref(ctaHref || DEFAULT_CTA_HREF, DEFAULT_CTA_HREF);
 
   return (
     <PinnedHero

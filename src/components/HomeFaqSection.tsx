@@ -67,10 +67,11 @@ export default function HomeFaqSection({ items, headingItalic, heading }: Props 
       return;
     }
 
+    let ctx: ReturnType<typeof gsap.context> | undefined;
     try {
       gsap.set(items, { opacity: 0, y: 40 });
 
-      const ctx = gsap.context(() => {
+      ctx = gsap.context(() => {
         ScrollTrigger.batch(items, {
           start: "top 90%",
           once: true,
@@ -88,12 +89,13 @@ export default function HomeFaqSection({ items, headingItalic, heading }: Props 
       }, section);
 
       return () => {
-        ctx.revert();
+        ctx?.revert();
       };
     } catch (error) {
       if (process.env.NODE_ENV === "development") {
         console.warn("[HomeFaqSection] Animation unavailable:", error);
       }
+      ctx?.revert();
       gsap.set(items, { opacity: 1, y: 0 });
     }
   }, [prefersReducedMotion]);
@@ -103,10 +105,15 @@ export default function HomeFaqSection({ items, headingItalic, heading }: Props 
   };
 
   return (
-    <section ref={sectionRef} id="faq" className="home-faq text-neutral-900">
+    <section
+      ref={sectionRef}
+      id="faq"
+      className="home-faq text-neutral-900"
+      aria-labelledby="home-faq-heading"
+    >
       <div className="home-section-inner home-section-inner--faq">
         <header className="home-faq-header">
-          <h2 ref={headingRef} className="home-faq-heading">
+          <h2 id="home-faq-heading" ref={headingRef} className="home-faq-heading">
             <RevealText
               block
               segments={[
@@ -142,8 +149,10 @@ export default function HomeFaqSection({ items, headingItalic, heading }: Props 
 
                 <div
                   id={answerId}
+                  role="region"
                   className={`home-faq-answer${isOpen ? " is-open" : ""}`}
                   aria-hidden={!isOpen}
+                  inert={!isOpen ? true : undefined}
                 >
                   <div className="home-faq-answer-inner">
                     <p>{item.answer}</p>

@@ -1,11 +1,24 @@
 import type { MetadataRoute } from "next";
 import { SITE_ROUTES } from "@/config/navigation";
+import { getAllCaseStudySlugsFromSanity } from "@/sanity/lib/queries";
+import { getAllCaseStudySlugs } from "@/data/caseStudies";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://nexifyafrica.com";
+  const lastModified = new Date();
 
-  return SITE_ROUTES.map((route) => ({
+  const staticEntries = SITE_ROUTES.map((route) => ({
     url: `${baseUrl}${route}`,
-    lastModified: new Date(),
+    lastModified,
   }));
+
+  const sanitySlugs = await getAllCaseStudySlugsFromSanity().catch(() => []);
+  const slugs = Array.from(new Set([...sanitySlugs, ...getAllCaseStudySlugs()]));
+
+  const caseStudyEntries = slugs.map((slug) => ({
+    url: `${baseUrl}/case-studies/${slug}`,
+    lastModified,
+  }));
+
+  return [...staticEntries, ...caseStudyEntries];
 }

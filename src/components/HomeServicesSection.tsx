@@ -10,14 +10,14 @@ import { gsap, ScrollTrigger } from "@/lib/gsap";
 type ServiceItem = { id?: string; number: string; title: string; description: string };
 
 function ServiceCard({ number, title, description }: ServiceItem) {
-  const displayNumber = number.replace(/\.$/, "");
+  const displayNumber = (number ?? "").replace(/\.$/, "");
 
   return (
     <article className="home-service-card">
-      <h2 className="home-service-number">
+      <p className="home-service-number" aria-hidden="true">
         {displayNumber}
         <span className="home-service-number-dot">.</span>
-      </h2>
+      </p>
       <div className="home-service-content">
         <h3 className="home-service-title">{title}</h3>
         <p className="home-service-description">{description}</p>
@@ -53,10 +53,11 @@ export default function HomeServicesSection({ services, heading }: Props = {}) {
       return;
     }
 
+    let ctx: ReturnType<typeof gsap.context> | undefined;
     try {
       gsap.set(cards, { opacity: 0, y: 48 });
 
-      const ctx = gsap.context(() => {
+      ctx = gsap.context(() => {
         ScrollTrigger.batch(cards, {
           start: "top 88%",
           once: true,
@@ -74,12 +75,13 @@ export default function HomeServicesSection({ services, heading }: Props = {}) {
       }, section);
 
       return () => {
-        ctx.revert();
+        ctx?.revert();
       };
     } catch (error) {
       if (process.env.NODE_ENV === "development") {
         console.warn("[HomeServicesSection] Animation unavailable:", error);
       }
+      ctx?.revert();
       gsap.set(cards, { opacity: 1, y: 0 });
     }
   }, [prefersReducedMotion]);

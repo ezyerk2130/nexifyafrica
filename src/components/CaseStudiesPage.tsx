@@ -40,10 +40,11 @@ export default function CaseStudiesPage({ cards, heroLines, heroRevealLines }: P
       return;
     }
 
+    let ctx: ReturnType<typeof gsap.context> | undefined;
     try {
       gsap.set(cardEls, { opacity: 0, y: 48 });
 
-      const ctx = gsap.context(() => {
+      ctx = gsap.context(() => {
         ScrollTrigger.create({
           trigger: section,
           start: "top 82%",
@@ -61,12 +62,13 @@ export default function CaseStudiesPage({ cards, heroLines, heroRevealLines }: P
       }, section);
 
       return () => {
-        ctx.revert();
+        ctx?.revert();
       };
     } catch (error) {
       if (process.env.NODE_ENV === "development") {
         console.warn("[CaseStudiesPage] Card animation unavailable:", error);
       }
+      ctx?.revert();
       gsap.set(cardEls, { opacity: 1, y: 0 });
     }
   }, [prefersReducedMotion]);
