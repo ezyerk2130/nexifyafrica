@@ -3,6 +3,11 @@ import { client } from "./client";
 
 // ─── Shared fetch helper ──────────────────────────────────────────────────────
 
+// Time-based ISR: every Sanity-backed page refreshes at most this often, so CMS
+// edits appear automatically even when the Sanity webhook isn't configured.
+// The webhook (/api/revalidate) still provides near-instant updates via tags.
+const REVALIDATE_SECONDS = 60;
+
 async function sanityFetch<T>(
   query: string,
   params: Record<string, unknown> = {},
@@ -10,7 +15,10 @@ async function sanityFetch<T>(
 ): Promise<T> {
   try {
     return await client.fetch<T>(query, params, {
-      next: { tags: tags.length ? tags : ["sanity"] },
+      next: {
+        tags: tags.length ? tags : ["sanity"],
+        revalidate: REVALIDATE_SECONDS,
+      },
     });
   } catch (err) {
     console.error("[Sanity] fetch failed", { tags, error: err });
