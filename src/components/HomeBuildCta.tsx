@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { safeHref } from "@/lib/url";
 
-const DEFAULT_HEADING = "Wanna Build Something?";
+const DEFAULT_HEADING = "Have an idea?";
 const DEFAULT_DESCRIPTION =
   "We've solved problems in over 15 industries. If you've got a challenge, we've likely tackled something similar.";
 const DEFAULT_CTA_TEXT = "Let's Build Together";
@@ -35,24 +35,11 @@ export default function HomeBuildCta({
               {displayHeading}
             </h2>
             <p className="home-build-description">{displayDescription}</p>
-            <Link href={buttonHref} className="home-build-cta">
-              <span>{buttonText}</span>
-              <svg
-                className="home-build-cta-arrow"
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-                aria-hidden="true"
-              >
-                <path
-                  d="M4 12L12 4M12 4H5M12 4V11"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+            <Link
+              href={buttonHref}
+              className="site-button border border-solid border-white bg-transparent"
+            >
+              {buttonText}
             </Link>
           </div>
 

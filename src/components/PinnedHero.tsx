@@ -310,50 +310,80 @@ export default function PinnedHero({
           }
         };
 
-        const scrollTl = gsap.timeline({
-          scrollTrigger: {
-            trigger: section,
-            start: "top top",
-            end: "+=200%",
-            pin: true,
-            pinReparent: false,
-            scrub: 1,
-            anticipatePin: 1,
-            invalidateOnRefresh: true,
-            onUpdate: (self) => {
-              updateIntroForScroll(self.progress, self.direction);
+        const buildScrollTimeline = (
+          end: string,
+          scrub: number,
+          invalidateOnRefresh: boolean,
+        ) => {
+          const timeline = gsap.timeline({
+            scrollTrigger: {
+              trigger: section,
+              start: "top top",
+              end,
+              pin: true,
+              pinReparent: false,
+              scrub,
+              anticipatePin: 0,
+              invalidateOnRefresh,
+              onUpdate: (self) => {
+                updateIntroForScroll(self.progress, self.direction);
 
-              if (!revealTl) return;
+                if (!revealTl) return;
 
-              if (self.progress >= REVEAL_TRIGGER && !revealActive) {
-                revealActive = true;
-                revealTl.restart(true);
-              } else if (self.progress < REVEAL_RESET && revealActive) {
-                revealActive = false;
-                resetReveal();
-              }
+                if (self.progress >= REVEAL_TRIGGER && !revealActive) {
+                  revealActive = true;
+                  revealTl.restart(true);
+                } else if (self.progress < REVEAL_RESET && revealActive) {
+                  revealActive = false;
+                  resetReveal();
+                }
+              },
             },
-          },
+          });
+
+          timeline.to(
+            section,
+            {
+              "--gradient-top": GRADIENT_END.top,
+              "--gradient-bottom": GRADIENT_END.bottom,
+              duration: 0.2,
+              ease: "power2.inOut",
+            },
+            SCROLL_WHITE,
+          );
+
+          timeline.to(
+            whiteOverlay,
+            { opacity: 1, duration: 0.2, ease: "power2.inOut" },
+            SCROLL_WHITE,
+          );
+
+          timeline.to({}, { duration: 0.58 }, SCROLL_WHITE + 0.2);
+
+          return timeline;
+        };
+
+        const mm = gsap.matchMedia();
+
+        mm.add("(min-width: 1024px)", () => {
+          const scrollTl = buildScrollTimeline("+=200%", 1, true);
+          return () => {
+            scrollTl.scrollTrigger?.kill();
+            scrollTl.kill();
+          };
         });
 
-        scrollTl.to(
-          section,
-          {
-            "--gradient-top": GRADIENT_END.top,
-            "--gradient-bottom": GRADIENT_END.bottom,
-            duration: 0.2,
-            ease: "power2.inOut",
-          },
-          SCROLL_WHITE,
-        );
+        mm.add("(max-width: 1023px)", () => {
+          const scrollTl = buildScrollTimeline("+=360%", 0.85, false);
+          return () => {
+            scrollTl.scrollTrigger?.kill();
+            scrollTl.kill();
+          };
+        });
 
-        scrollTl.to(
-          whiteOverlay,
-          { opacity: 1, duration: 0.2, ease: "power2.inOut" },
-          SCROLL_WHITE,
-        );
-
-        scrollTl.to({}, { duration: 0.58 }, SCROLL_WHITE + 0.2);
+        return () => {
+          mm.revert();
+        };
       }, wrapper);
 
       requestAnimationFrame(() => ScrollTrigger.refresh());

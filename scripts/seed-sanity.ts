@@ -108,7 +108,7 @@ const homePage = {
   faqHeadingItalic: "Questions?",
   faqHeading: "Glad you asked.",
   // Build CTA
-  buildCtaHeading: "Wanna Build Something?",
+  buildCtaHeading: "Have an idea?",
   buildCtaDescription:
     "We've solved problems in over 15 industries. If you've got a challenge, we've likely tackled something similar.",
   buildCtaButtonText: "Let's Build Together",

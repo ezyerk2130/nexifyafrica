@@ -104,7 +104,7 @@ export const homePageType = defineType({
       name: "buildCtaHeading",
       title: "Build CTA – Heading",
       type: "string",
-      initialValue: "Wanna Build Something?",
+      initialValue: "Have an idea?",
       group: "buildCta",
     }),
     defineField({
