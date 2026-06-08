@@ -3,12 +3,21 @@ import { structureTool } from "sanity/structure";
 import { visionTool } from "@sanity/vision";
 import { schemaTypes } from "./src/sanity/schemaTypes";
 
-const SINGLETONS = ["homePage", "manifestoPage", "teamPage", "contactPage"] as const;
+const SINGLETONS = [
+  "siteSettings",
+  "homePage",
+  "manifestoPage",
+  "teamPage",
+  "contactPage",
+  "careersPage",
+] as const;
 const SINGLETON_LABELS: Record<string, string> = {
+  siteSettings: "Site Settings",
   homePage: "Home Page",
   manifestoPage: "Manifesto Page",
   teamPage: "Team Page",
   contactPage: "Contact Page",
+  careersPage: "Careers Page",
 };
 
 export default defineConfig({

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { FOOTER_NAV } from "@/config/navigation";
+import { useSiteSettings } from "@/components/SiteSettingsProvider";
 
 function AfricaLogo() {
   return (
@@ -19,7 +19,7 @@ function AfricaLogo() {
   );
 }
 
-function FooterWordmark() {
+function FooterWordmark({ text }: { text: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const wrapRef = useRef<HTMLHeadingElement>(null);
   const textRef = useRef<HTMLSpanElement>(null);
@@ -79,7 +79,7 @@ function FooterWordmark() {
       window.removeEventListener("resize", scheduleFit);
       window.visualViewport?.removeEventListener("resize", scheduleFit);
     };
-  }, []);
+  }, [text]);
 
   return (
     <div
@@ -88,7 +88,7 @@ function FooterWordmark() {
     >
       <h2 ref={wrapRef} className="footer-wordmark w-full">
         <span ref={textRef} className="footer-wordmark-text">
-          Nexify Africa
+          {text}
         </span>
       </h2>
     </div>
@@ -98,6 +98,18 @@ function FooterWordmark() {
 type SubscribeStatus = "idle" | "success" | "error";
 
 export default function Footer() {
+  const {
+    navLinks,
+    contactLink,
+    footerWordmark,
+    subscribeLabel,
+    subscribePlaceholder,
+    subscribeButtonText,
+    subscribeNote,
+    subscribeSuccessMessage,
+    copyright,
+  } = useSiteSettings();
+  const footerNav = [...navLinks, contactLink];
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<SubscribeStatus>("idle");
   const [message, setMessage] = useState("");
@@ -125,7 +137,7 @@ export default function Footer() {
     }
 
     setStatus("success");
-    setMessage("Thanks for subscribing. We'll be in touch soon.");
+    setMessage(subscribeSuccessMessage);
     setEmail("");
   };
 
@@ -142,7 +154,7 @@ export default function Footer() {
               className="footer-nav flex flex-wrap gap-x-5 gap-y-3 sm:gap-x-6"
               aria-label="Footer navigation"
             >
-              {FOOTER_NAV.map((item) => (
+              {footerNav.map((item) => (
                 <Link
                   key={item.label}
                   href={item.href}
@@ -155,7 +167,7 @@ export default function Footer() {
           </div>
 
           <div className="footer-subscribe w-full max-w-md lg:max-w-lg lg:pt-1">
-            <p className="mb-3 text-sm text-white">Subscribe</p>
+            <p className="mb-3 text-sm text-white">{subscribeLabel}</p>
 
             <form
               className="footer-subscribe-form flex flex-col gap-3 sm:flex-row sm:items-stretch"
@@ -171,7 +183,7 @@ export default function Footer() {
                 type="email"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
-                placeholder="Enter your email"
+                placeholder={subscribePlaceholder}
                 className="footer-input min-h-11 flex-1 border border-white bg-transparent px-4 py-2.5 text-sm text-white placeholder:text-white/70 outline-none transition-colors focus:border-white/80"
                 aria-describedby="footer-subscribe-feedback"
               />
@@ -179,7 +191,7 @@ export default function Footer() {
                 type="submit"
                 className="site-button border border-solid border-white bg-transparent"
               >
-                Subscribe
+                {subscribeButtonText}
               </button>
             </form>
 
@@ -190,22 +202,19 @@ export default function Footer() {
               }`}
               aria-live="polite"
             >
-              {message ||
-                "By subscribing you agree to with our Privacy Policy."}
+              {message || subscribeNote}
             </p>
           </div>
         </div>
       </div>
 
-      <FooterWordmark />
+      <FooterWordmark text={footerWordmark} />
 
       <div className="footer-inner mx-auto w-full max-w-[1400px] px-6 pb-12 sm:px-8 sm:pb-14 lg:px-12 lg:pb-16">
         <div className="footer-divider my-8 h-px w-full bg-white/90 sm:my-10" />
 
         <div className="footer-bottom flex flex-col gap-4 text-xs text-white sm:flex-row sm:items-center sm:justify-between sm:text-sm">
-          <p className="text-white/95 sm:text-right">
-            © 2026 Nexify Africa. All rights reserved.
-          </p>
+          <p className="text-white/95 sm:text-right">{copyright}</p>
         </div>
       </div>
     </footer>

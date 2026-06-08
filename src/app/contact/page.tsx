@@ -39,6 +39,7 @@ export default async function ContactRoute() {
       heroRevealLines={data.heroRevealLines}
       {...visualProps}
       {...detailsProps}
+      {...(data.form ? { form: data.form } : {})}
     />
   );
 }

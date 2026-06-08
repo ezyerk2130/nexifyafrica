@@ -15,7 +15,7 @@ for (const route of routes) {
     expect(response?.status(), `status for ${route.path}`).toBeLessThan(400);
 
     // Brand mark in the nav is present on every page.
-    await expect(page.getByRole("link", { name: "NEXIFY AFRICA" }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: /nexify africa/i }).first()).toBeVisible();
 
     // Every page renders at least one top-level heading.
     await expect(page.locator("h1").first()).toBeVisible();

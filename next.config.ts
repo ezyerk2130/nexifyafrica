@@ -36,6 +36,9 @@ const nextConfig: NextConfig = {
     "10.0.0.*",
   ],
   images: {
+    // Serve AVIF/WebP where supported to cut image payloads significantly.
+    formats: ["image/avif", "image/webp"],
+    minimumCacheTTL: 60 * 60 * 24 * 30,
     remotePatterns: [
       {
         protocol: "https",

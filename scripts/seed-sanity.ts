@@ -185,11 +185,62 @@ const contactPage = {
   heroRevealLines: ["Let's start", "the conversation"],
   visualHeadline: "Got an idea? Let's build it right.",
   visualDescription: "From strategy and brand systems to full product development, we help Africa's most ambitious teams build software that converts, scales, and stands out.",
+  form: {
+    nameLabel: "Name",
+    namePlaceholder: "John Carter",
+    emailLabel: "Email",
+    emailPlaceholder: "example@nexifyafrica.com",
+    companyLabel: "Company",
+    companyPlaceholder: "Your company",
+    detailsLabel: "Project details",
+    detailsPlaceholder: "Tell us about your project",
+    submitText: "Send Message",
+    submitSentText: "Message sent",
+  },
   details: [
     { id: "phone", title: "Phone:", lines: ["+255687473582"], href: "tel:+255687473582" },
     { id: "email", title: "Email:", lines: ["info@nexifyafrica.com"], href: "mailto:info@nexifyafrica.com" },
     { id: "address", title: "Address:", lines: ["Masaki, Haile Selassie Road,", "Dar es Salaam, Tanzania"] },
   ],
+};
+
+const siteSettings = {
+  _id: "siteSettings",
+  _type: "siteSettings" as const,
+  brandName: "Nexify Africa",
+  footerWordmark: "Nexify Africa",
+  navLinks: [
+    { _key: "nav-home", label: "Home", href: "/" },
+    { _key: "nav-manifesto", label: "Manifesto", href: "/manifesto" },
+    { _key: "nav-team", label: "Team", href: "/team" },
+    { _key: "nav-case-studies", label: "Case Studies", href: "/case-studies" },
+    { _key: "nav-careers", label: "Careers", href: "/careers" },
+  ],
+  contactLinkLabel: "Contact",
+  contactLinkHref: "/contact",
+  subscribeLabel: "Subscribe",
+  subscribePlaceholder: "Enter your email",
+  subscribeButtonText: "Subscribe",
+  subscribeNote: "By subscribing you agree to with our Privacy Policy.",
+  subscribeSuccessMessage: "Thanks for subscribing. We'll be in touch soon.",
+  copyright: "© {year} Nexify Africa. All rights reserved.",
+  seoTitle: "Nexify Africa",
+  seoTitleTemplate: "%s — Nexify Africa",
+  seoDescription:
+    "Strategy, brand systems, and digital products for Africa's most disruptive thinkers.",
+};
+
+const careersPage = {
+  _id: "careersPage",
+  _type: "careersPage" as const,
+  heroLines: ["Careers"],
+  heroRevealLines: ["Open roles and opportunities", "are coming soon."],
+  kicker: "Coming soon",
+  description: "Open roles and opportunities are coming soon.",
+  primaryCtaLabel: "Back to home",
+  primaryCtaHref: "/",
+  secondaryCtaLabel: "View case studies",
+  secondaryCtaHref: "/case-studies",
 };
 
 // ─── Seed ─────────────────────────────────────────────────────────────────────
@@ -232,6 +283,12 @@ async function seed() {
   console.log(`  ✓ caseStudy: ${caseStudy.title}`);
 
   // Singletons
+  await client.createOrReplace(siteSettings);
+  console.log("  ✓ siteSettings singleton");
+
+  await client.createOrReplace(careersPage);
+  console.log("  ✓ careersPage singleton");
+
   await client.createOrReplace(homePage);
   console.log("  ✓ homePage singleton");
 

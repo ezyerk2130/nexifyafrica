@@ -11,12 +11,38 @@ import { isSafeHref } from "@/lib/url";
 type ContactIconType = "email" | "phone" | "address";
 type ContactDetail = { id: string; title: string; lines: readonly string[]; href?: string };
 type ContactVisual = { imageSrc: string; headline: string; description: string };
+type ContactForm = {
+  nameLabel?: string;
+  namePlaceholder?: string;
+  emailLabel?: string;
+  emailPlaceholder?: string;
+  companyLabel?: string;
+  companyPlaceholder?: string;
+  detailsLabel?: string;
+  detailsPlaceholder?: string;
+  submitText?: string;
+  submitSentText?: string;
+};
+
+const DEFAULT_FORM: Required<ContactForm> = {
+  nameLabel: "Name",
+  namePlaceholder: "John Carter",
+  emailLabel: "Email",
+  emailPlaceholder: "example@nexifyafrica.com",
+  companyLabel: "Company",
+  companyPlaceholder: "Your company",
+  detailsLabel: "Project details",
+  detailsPlaceholder: "Tell us about your project",
+  submitText: "Send Message",
+  submitSentText: "Message sent",
+};
 
 type Props = {
   heroLines?: readonly string[];
   heroRevealLines?: readonly string[];
   visual?: ContactVisual;
   details?: ContactDetail[];
+  form?: ContactForm;
 };
 
 function ContactIcon({ type }: { type: "email" | "phone" | "address" }) {
@@ -65,9 +91,10 @@ function ContactIcon({ type }: { type: "email" | "phone" | "address" }) {
   );
 }
 
-export default function ContactPage({ heroLines, heroRevealLines, visual, details }: Props = {}) {
+export default function ContactPage({ heroLines, heroRevealLines, visual, details, form }: Props = {}) {
   const VISUAL = visual ?? CONTACT_VISUAL;
   const DETAILS = details ?? CONTACT_DETAILS;
+  const FORM = { ...DEFAULT_FORM, ...(form ?? {}) };
   const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -101,23 +128,23 @@ export default function ContactPage({ heroLines, heroRevealLines, visual, detail
             <form className="contact-form" onSubmit={handleSubmit} noValidate>
               <div className="contact-form-row">
                 <label className="contact-field">
-                  <span className="contact-label">Name</span>
+                  <span className="contact-label">{FORM.nameLabel}</span>
                   <input
                     type="text"
                     name="name"
                     autoComplete="name"
-                    placeholder="John Carter"
+                    placeholder={FORM.namePlaceholder}
                     className="contact-input"
                     required
                   />
                 </label>
                 <label className="contact-field">
-                  <span className="contact-label">Email</span>
+                  <span className="contact-label">{FORM.emailLabel}</span>
                   <input
                     type="email"
                     name="email"
                     autoComplete="email"
-                    placeholder="example@nexifyafrica.com"
+                    placeholder={FORM.emailPlaceholder}
                     className="contact-input"
                     required
                   />
@@ -127,23 +154,23 @@ export default function ContactPage({ heroLines, heroRevealLines, visual, detail
               <div className="contact-form-row">
                 <ContactPhoneField />
                 <label className="contact-field">
-                  <span className="contact-label">Company</span>
+                  <span className="contact-label">{FORM.companyLabel}</span>
                   <input
                     type="text"
                     name="company"
                     autoComplete="organization"
-                    placeholder="Your company"
+                    placeholder={FORM.companyPlaceholder}
                     className="contact-input"
                   />
                 </label>
               </div>
 
               <label className="contact-field">
-                <span className="contact-label">Project details</span>
+                <span className="contact-label">{FORM.detailsLabel}</span>
                 <textarea
                   name="details"
                   rows={6}
-                  placeholder="Tell us about your project"
+                  placeholder={FORM.detailsPlaceholder}
                   className="contact-input contact-textarea"
                   required
                 />
@@ -154,7 +181,7 @@ export default function ContactPage({ heroLines, heroRevealLines, visual, detail
                 className="site-button site-button--blue self-start"
                 disabled={submitted}
               >
-                {submitted ? "Message sent" : "Send Message"}
+                {submitted ? FORM.submitSentText : FORM.submitText}
               </button>
             </form>
 

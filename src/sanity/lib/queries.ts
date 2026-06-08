@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { client } from "./client";
 
 // ─── Shared fetch helper ──────────────────────────────────────────────────────
@@ -155,6 +156,19 @@ export type SanityContactDetail = {
   href?: string;
 };
 
+export type SanityContactForm = {
+  nameLabel?: string;
+  namePlaceholder?: string;
+  emailLabel?: string;
+  emailPlaceholder?: string;
+  companyLabel?: string;
+  companyPlaceholder?: string;
+  detailsLabel?: string;
+  detailsPlaceholder?: string;
+  submitText?: string;
+  submitSentText?: string;
+};
+
 export type SanityContactPage = {
   heroLines: string[];
   heroRevealLines: string[];
@@ -162,12 +176,44 @@ export type SanityContactPage = {
   visualDescription: string;
   visualImage?: SanityImageRef;
   details: SanityContactDetail[];
+  form?: SanityContactForm;
 };
 
 export type SanityTeamPage = {
   heroLines: string[];
   heroRevealLines: string[];
   defaultTeamImage?: SanityImageRef;
+};
+
+export type SanityNavLink = { label: string; href: string };
+
+export type SanitySiteSettings = {
+  brandName?: string;
+  footerWordmark?: string;
+  navLinks?: SanityNavLink[];
+  contactLinkLabel?: string;
+  contactLinkHref?: string;
+  subscribeLabel?: string;
+  subscribePlaceholder?: string;
+  subscribeButtonText?: string;
+  subscribeNote?: string;
+  subscribeSuccessMessage?: string;
+  copyright?: string;
+  seoTitle?: string;
+  seoTitleTemplate?: string;
+  seoDescription?: string;
+  ogImage?: SanityImageRef;
+};
+
+export type SanityCareersPage = {
+  heroLines?: string[];
+  heroRevealLines?: string[];
+  kicker?: string;
+  description?: string;
+  primaryCtaLabel?: string;
+  primaryCtaHref?: string;
+  secondaryCtaLabel?: string;
+  secondaryCtaHref?: string;
 };
 
 // ─── Queries ──────────────────────────────────────────────────────────────────
@@ -314,10 +360,55 @@ export async function getContactPage(): Promise<SanityContactPage | null> {
       visualHeadline,
       visualDescription,
       visualImage { asset },
-      details[] { id, title, lines, href }
+      details[] { id, title, lines, href },
+      form
     }`,
     {},
     ["contactPage"],
+  );
+}
+
+// Cached so the layout fetch + generateMetadata fetch dedupe within one request.
+export const getSiteSettings = cache(
+  async (): Promise<SanitySiteSettings | null> => {
+    return sanityFetch(
+      `*[_type == "siteSettings" && _id == "siteSettings"][0] {
+        brandName,
+        footerWordmark,
+        navLinks[] { label, href },
+        contactLinkLabel,
+        contactLinkHref,
+        subscribeLabel,
+        subscribePlaceholder,
+        subscribeButtonText,
+        subscribeNote,
+        subscribeSuccessMessage,
+        copyright,
+        seoTitle,
+        seoTitleTemplate,
+        seoDescription,
+        ogImage { asset }
+      }`,
+      {},
+      ["siteSettings"],
+    );
+  },
+);
+
+export async function getCareersPage(): Promise<SanityCareersPage | null> {
+  return sanityFetch(
+    `*[_type == "careersPage" && _id == "careersPage"][0] {
+      heroLines,
+      heroRevealLines,
+      kicker,
+      description,
+      primaryCtaLabel,
+      primaryCtaHref,
+      secondaryCtaLabel,
+      secondaryCtaHref
+    }`,
+    {},
+    ["careersPage"],
   );
 }
 

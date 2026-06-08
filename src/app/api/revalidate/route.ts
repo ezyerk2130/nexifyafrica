@@ -9,10 +9,12 @@ const VALID_TAGS = [
   "faqItem",
   "principle",
   "teamMember",
+  "siteSettings",
   "homePage",
   "manifestoPage",
   "teamPage",
   "contactPage",
+  "careersPage",
 ] as const;
 
 /** Constant-time string comparison that tolerates differing lengths. */

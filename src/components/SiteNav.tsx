@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { CONTACT_LINK, NAV_LINKS } from "@/config/navigation";
+import { useSiteSettings } from "@/components/SiteSettingsProvider";
 
 export { NAV_LINKS, CONTACT_LINK };
 
@@ -15,6 +16,7 @@ export default function SiteNav({
   variant?: "dark" | "light";
   className?: string;
 }) {
+  const { brandName, navLinks, contactLink } = useSiteSettings();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuId = useId();
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -95,14 +97,14 @@ export default function SiteNav({
         className={`${itemClass}text-sm font-semibold tracking-[0.2em] uppercase lg:text-base ${logoColor}`}
         onClick={closeMenu}
       >
-        NEXIFY AFRICA
+        {brandName}
       </Link>
 
       <nav
         className={`${itemClass}hidden items-center gap-6 text-sm lg:flex lg:gap-8 ${logoColor}`}
         aria-label="Main navigation"
       >
-        {NAV_LINKS.map((item) => (
+        {navLinks.map((item) => (
           <Link
             key={item.label}
             href={item.href}
@@ -116,20 +118,20 @@ export default function SiteNav({
           aria-hidden="true"
         />
         <Link
-          href={CONTACT_LINK.href}
+          href={contactLink.href}
           className="transition-opacity duration-300 hover:opacity-60"
         >
-          {CONTACT_LINK.label}
+          {contactLink.label}
         </Link>
       </nav>
 
       <div className={`${itemClass}flex items-center gap-5 lg:hidden`}>
         <Link
-          href={CONTACT_LINK.href}
+          href={contactLink.href}
           className={`text-sm transition-opacity duration-300 hover:opacity-60 ${logoColor}`}
           onClick={closeMenu}
         >
-          {CONTACT_LINK.label}
+          {contactLink.label}
         </Link>
         <button
           ref={toggleRef}
@@ -173,7 +175,7 @@ export default function SiteNav({
             className="flex flex-col gap-6 text-lg text-white"
             aria-label="Mobile navigation"
           >
-            {NAV_LINKS.map((item) => (
+            {navLinks.map((item) => (
               <Link
                 key={item.label}
                 href={item.href}
@@ -184,11 +186,11 @@ export default function SiteNav({
               </Link>
             ))}
             <Link
-              href={CONTACT_LINK.href}
+              href={contactLink.href}
               className="transition-opacity duration-300 hover:opacity-70"
               onClick={closeMenu}
             >
-              {CONTACT_LINK.label}
+              {contactLink.label}
             </Link>
           </nav>
         </div>
