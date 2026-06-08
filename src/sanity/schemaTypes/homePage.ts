@@ -9,6 +9,7 @@ export const homePageType = defineType({
     { name: "principles", title: "Principles Section" },
     { name: "services", title: "Services Section" },
     { name: "faq", title: "FAQ Section" },
+    { name: "buildCta", title: "Build CTA Section" },
     { name: "caseStudiesPage", title: "Case Studies Page Hero" },
   ],
   fields: [
@@ -96,6 +97,38 @@ export const homePageType = defineType({
       type: "string",
       initialValue: "Glad you asked.",
       group: "faq",
+    }),
+
+    // ── Build CTA ─────────────────────────────────────────────────────────────
+    defineField({
+      name: "buildCtaHeading",
+      title: "Build CTA – Heading",
+      type: "string",
+      initialValue: "Wanna Build Something?",
+      group: "buildCta",
+    }),
+    defineField({
+      name: "buildCtaDescription",
+      title: "Build CTA – Description",
+      type: "text",
+      rows: 2,
+      initialValue:
+        "We've solved problems in over 15 industries. If you've got a challenge, we've likely tackled something similar.",
+      group: "buildCta",
+    }),
+    defineField({
+      name: "buildCtaButtonText",
+      title: "Build CTA – Button Text",
+      type: "string",
+      initialValue: "Let's Build Together",
+      group: "buildCta",
+    }),
+    defineField({
+      name: "buildCtaButtonHref",
+      title: "Build CTA – Button Link",
+      type: "string",
+      initialValue: "/contact",
+      group: "buildCta",
     }),
 
     // ── Case Studies Page Hero ────────────────────────────────────────────────

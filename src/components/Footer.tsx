@@ -189,7 +189,7 @@ export default function Footer() {
               />
               <button
                 type="submit"
-                className="site-button border border-solid border-white bg-transparent"
+                className="site-button justify-center border border-solid border-white bg-transparent sm:justify-start"
               >
                 {subscribeButtonText}
               </button>

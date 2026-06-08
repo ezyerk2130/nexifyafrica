@@ -143,6 +143,11 @@ export type SanityHomePage = {
   // FAQ
   faqHeadingItalic?: string;
   faqHeading?: string;
+  // Build CTA
+  buildCtaHeading?: string;
+  buildCtaDescription?: string;
+  buildCtaButtonText?: string;
+  buildCtaButtonHref?: string;
   // Case studies page
   caseStudiesHeroLines?: HeroText;
   caseStudiesRevealLines?: HeroText;
@@ -338,6 +343,10 @@ export async function getHomePage(): Promise<SanityHomePage | null> {
       servicesHeading,
       faqHeadingItalic,
       faqHeading,
+      buildCtaHeading,
+      buildCtaDescription,
+      buildCtaButtonText,
+      buildCtaButtonHref,
       caseStudiesHeroLines,
       caseStudiesRevealLines
     }`,

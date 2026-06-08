@@ -741,12 +741,117 @@ html.lenis body {
 
 .home-section-inner--features,
 .home-section-inner--services,
+.home-section-inner--build,
 .home-section-inner--faq {
   padding-top: var(--home-section-padding-y);
 }
 
 .home-section-inner--faq {
   padding-bottom: var(--home-section-padding-y);
+}
+
+/* Homepage "Wanna Build Something?" CTA band */
+.home-build {
+  background-color: #f4f6f8;
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+.home-build-band {
+  position: relative;
+  overflow: hidden;
+  background-color: #003b8c;
+  color: #ffffff;
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.home-build-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.25rem;
+  padding: 2.5rem 1.75rem 0;
+}
+
+.home-build-heading {
+  margin: 0;
+  font-size: clamp(2rem, 7vw, 3.25rem);
+  font-weight: 700;
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+}
+
+.home-build-description {
+  margin: 0;
+  max-width: 46ch;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.home-build-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+  padding: 0.75rem 1.5rem;
+  background-color: #f4f6f8;
+  border: 1px solid #f4f6f8;
+  color: #003b8c;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.home-build-cta:hover,
+.home-build-cta:focus-visible {
+  background-color: transparent;
+  border-color: #ffffff;
+  color: #ffffff;
+  outline: none;
+}
+
+.home-build-cta-arrow {
+  flex-shrink: 0;
+}
+
+.home-build-media {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 1.5rem 1.5rem 0;
+}
+
+.home-build-img {
+  display: block;
+  width: 100%;
+  max-width: 460px;
+  height: auto;
+}
+
+@media (min-width: 768px) {
+  .home-build-band {
+    grid-template-columns: 1.05fr 0.95fr;
+    align-items: end;
+  }
+
+  .home-build-content {
+    padding: 3.5rem 0 3.5rem 3rem;
+  }
+
+  .home-build-media {
+    padding: 0 2rem 0 0;
+    align-self: end;
+  }
+
+  .home-build-img {
+    max-width: 100%;
+  }
 }
 
 /* Homepage principles marquee */

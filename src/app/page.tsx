@@ -1,4 +1,5 @@
 import HeroSection from "@/components/HeroSection";
+import HomeBuildCta from "@/components/HomeBuildCta";
 import HomeFaqSection from "@/components/HomeFaqSection";
 import HomeServicesSection from "@/components/HomeServicesSection";
 import NextSection from "@/components/NextSection";
@@ -50,6 +51,13 @@ export default async function Home() {
         }
       : {};
 
+  const buildCtaProps = {
+    heading: homePage?.buildCtaHeading,
+    description: homePage?.buildCtaDescription,
+    ctaText: homePage?.buildCtaButtonText,
+    ctaHref: homePage?.buildCtaButtonHref,
+  };
+
   const principlesProps =
     principles && principles.length > 0
       ? {
@@ -70,6 +78,7 @@ export default async function Home() {
       <HeroSection {...heroProps} />
       <NextSection {...principlesProps} />
       <HomeServicesSection {...servicesProps} />
+      <HomeBuildCta {...buildCtaProps} />
       <HomeFaqSection {...faqProps} />
       <Footer />
     </>

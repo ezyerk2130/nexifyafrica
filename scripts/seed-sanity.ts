@@ -107,6 +107,12 @@ const homePage = {
   // FAQ
   faqHeadingItalic: "Questions?",
   faqHeading: "Glad you asked.",
+  // Build CTA
+  buildCtaHeading: "Wanna Build Something?",
+  buildCtaDescription:
+    "We've solved problems in over 15 industries. If you've got a challenge, we've likely tackled something similar.",
+  buildCtaButtonText: "Let's Build Together",
+  buildCtaButtonHref: "/contact",
   // Case studies page hero
   caseStudiesHeroLines: "Stories of change — and the strategy behind them",
   caseStudiesRevealLines: "Real outcomes. Measured impact.",
