@@ -1,41 +1,12 @@
 import type { Metadata } from "next";
-import ComingSoonPage from "@/components/ComingSoonPage";
-import { getCareersPage } from "@/sanity/lib/queries";
+import ArticlesPage from "@/components/ArticlesPage";
 
 export const metadata: Metadata = {
-  title: "Careers",
-  description: "Join Nexify Africa and help shape the future of tech in Africa.",
+  title: "Articles",
+  description:
+    "Articles and field notes from Nexify Africa on product strategy, automation, analytics, and digital growth.",
 };
 
-function toText(value?: string | string[]): string {
-  if (Array.isArray(value)) return value.join(" ");
-  return value ?? "";
-}
-
-export default async function CareersPage() {
-  const data = await getCareersPage().catch(() => null);
-
-  const title = toText(data?.heroLines).trim() || "Careers";
-  const description =
-    data?.description ?? "Open roles and opportunities are coming soon.";
-  const revealText =
-    toText(data?.heroRevealLines).trim() ||
-    "Open roles and opportunities are coming soon.";
-
-  return (
-    <ComingSoonPage
-      title={title}
-      description={description}
-      revealLines={revealText}
-      kicker={data?.kicker ?? "Coming soon"}
-      primaryCta={{
-        label: data?.primaryCtaLabel ?? "Back to home",
-        href: data?.primaryCtaHref ?? "/",
-      }}
-      secondaryCta={{
-        label: data?.secondaryCtaLabel ?? "View case studies",
-        href: data?.secondaryCtaHref ?? "/case-studies",
-      }}
-    />
-  );
+export default function CareersPage() {
+  return <ArticlesPage />;
 }
