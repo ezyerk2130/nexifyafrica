@@ -275,7 +275,7 @@ export default function ArticleDetailPage({
     <main ref={pageRef} className="article-detail-page">
       <section className="article-detail-hero" aria-labelledby="article-detail-heading">
         <div className="article-detail-hero-inner">
-          <Link href="/careers" className="article-detail-back article-detail-hero-reveal">
+          <Link href="/articles" className="article-detail-back article-detail-hero-reveal">
             Articles
           </Link>
           <p className="article-detail-kicker article-detail-hero-reveal">
@@ -375,7 +375,7 @@ export default function ArticleDetailPage({
             </p>
             <div>
               <h2 id="article-related-heading">More thinking from our team</h2>
-              <Link href="/careers">
+              <Link href="/articles">
                 View all articles
                 <ArrowIcon />
               </Link>

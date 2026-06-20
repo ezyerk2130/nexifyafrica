@@ -313,7 +313,7 @@ export const ARTICLES: ArticleDetail[] = [
 ];
 
 export function articlePath(slug: string) {
-  return `/careers/${slug}`;
+  return `/articles/${slug}`;
 }
 
 export function getAllArticleSlugs() {

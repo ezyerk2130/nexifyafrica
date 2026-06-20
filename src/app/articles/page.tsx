@@ -7,6 +7,6 @@ export const metadata: Metadata = {
     "Articles and field notes from Nexify Africa on product strategy, automation, analytics, and digital growth.",
 };
 
-export default function CareersPage() {
+export default function ArticlesRoute() {
   return <ArticlesPage />;
 }

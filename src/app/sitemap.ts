@@ -22,7 +22,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   const articleEntries = getAllArticleSlugs().map((slug) => ({
-    url: `${baseUrl}/careers/${slug}`,
+    url: `${baseUrl}/articles/${slug}`,
     lastModified,
   }));
 
