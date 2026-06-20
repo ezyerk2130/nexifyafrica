@@ -5,7 +5,11 @@ import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 import { SiteSettingsProvider } from "@/components/SiteSettingsProvider";
-import { DEFAULT_SITE_SETTINGS, type SiteSettings } from "@/lib/siteSettings";
+import {
+  DEFAULT_SITE_SETTINGS,
+  normalizeNavLinks,
+  type SiteSettings,
+} from "@/lib/siteSettings";
 import { getSiteSettings } from "@/sanity/lib/queries";
 import { imageUrl } from "@/sanity/lib/image";
 import "./globals.css";
@@ -84,10 +88,11 @@ export default async function RootLayout({
     brandName: settings?.brandName ?? DEFAULT_SITE_SETTINGS.brandName,
     footerWordmark:
       settings?.footerWordmark ?? DEFAULT_SITE_SETTINGS.footerWordmark,
-    navLinks:
+    navLinks: normalizeNavLinks(
       settings?.navLinks && settings.navLinks.length > 0
         ? settings.navLinks
         : DEFAULT_SITE_SETTINGS.navLinks,
+    ),
     contactLink: {
       label: settings?.contactLinkLabel ?? DEFAULT_SITE_SETTINGS.contactLink.label,
       href: settings?.contactLinkHref ?? DEFAULT_SITE_SETTINGS.contactLink.href,

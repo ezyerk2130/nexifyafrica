@@ -362,7 +362,7 @@ const siteSettings = {
     { _key: "nav-manifesto", label: "Manifesto", href: "/manifesto" },
     { _key: "nav-team", label: "Team", href: "/team" },
     { _key: "nav-case-studies", label: "Case Studies", href: "/case-studies" },
-    { _key: "nav-careers", label: "Careers", href: "/careers" },
+    { _key: "nav-articles", label: "Articles", href: "/articles" },
   ],
   contactLinkLabel: "Contact",
   contactLinkHref: "/contact",

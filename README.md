@@ -35,7 +35,8 @@ Marketing website for **Nexify Africa** — strategy, brand systems, digital pro
 | `/team` | Team grid with per-member portraits and scroll animations |
 | `/case-studies` | Case study cards |
 | `/case-studies/[slug]` | Individual case study detail page (SSG from Sanity + local fallback) |
-| `/careers` | Coming soon placeholder |
+| `/articles` | Articles landing page |
+| `/articles/[slug]` | Individual article detail page |
 | `/contact` | Contact form, phone country selector, office details |
 | `/studio` | Embedded Sanity Studio (content editing) |
 | `404` | Branded not-found page |
@@ -125,7 +126,7 @@ nexifyafrica/
 
 | Component | Role |
 |-----------|------|
-| `PinnedHero` | Shared pinned scroll hero (home, manifesto, team, contact, case studies, careers) |
+| `PinnedHero` | Shared pinned scroll hero (home, manifesto, team, contact, case studies) |
 | `HeroSection` | Homepage hero copy + CTA |
 | `HomeServicesSection` | Homepage services grid with scroll reveal |
 | `NextSection` | Homepage principles marquee |
