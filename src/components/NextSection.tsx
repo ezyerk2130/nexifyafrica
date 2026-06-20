@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import PrincipleIcon from "@/components/PrincipleIcon";
 import RevealText from "@/components/RevealText";
 import {
@@ -10,7 +10,8 @@ import {
 } from "@/data/homePrinciples";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { useScrollWordReveal } from "@/hooks/useScrollWordReveal";
-import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { mediaQueries, motion } from "@/lib/animation";
+import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsap";
 
 type PrincipleItem = {
   id?: string;
@@ -47,7 +48,11 @@ type Props = {
   headingAfter?: string;
 };
 
-function PrinciplesList({ principles }: { principles: readonly PrincipleItem[] }) {
+function PrinciplesList({
+  principles,
+}: {
+  principles: readonly PrincipleItem[];
+}) {
   return (
     <div className="home-marquee-list">
       {principles.map((principle, i) => (
@@ -76,56 +81,69 @@ export default function NextSection({
 
   useScrollWordReveal(headingRef, sectionRef, prefersReducedMotion);
 
-  useEffect(() => {
-    const section = sectionRef.current;
-    const pinWrapper = pinRef.current;
-    const heading = headingRef.current;
-    const marquee = marqueeRef.current;
-    const track = trackRef.current;
-    if (!section || !pinWrapper || !heading || !marquee || !track) return;
+  useGSAP(
+    () => {
+      const section = sectionRef.current;
+      const pinWrapper = pinRef.current;
+      const heading = headingRef.current;
+      const marquee = marqueeRef.current;
+      const track = trackRef.current;
+      if (!section || !pinWrapper || !heading || !marquee || !track) return;
 
-    const isMobile = () => window.matchMedia("(max-width: 1023px)").matches;
+      const isMobile = () => window.matchMedia(mediaQueries.touch).matches;
 
-    const measureScroll = (): ScrollMetrics | null => {
-      const styles = getComputedStyle(marquee);
-      const paddingLeft = Number.parseFloat(styles.paddingLeft) || 0;
-      const visibleWidth = marquee.clientWidth - paddingLeft;
-      const distance = Math.max(0, track.scrollWidth - visibleWidth);
-      if (distance <= 0) return null;
+      const measureScroll = (): ScrollMetrics | null => {
+        const styles = getComputedStyle(marquee);
+        const paddingLeft = Number.parseFloat(styles.paddingLeft) || 0;
+        const visibleWidth = marquee.clientWidth - paddingLeft;
+        const distance = Math.max(0, track.scrollWidth - visibleWidth);
+        if (distance <= 0) return null;
 
-      const gap = isMobile() ? 24 : 40;
-      const marqueeHeight = marquee.offsetHeight;
-      const marqueeTop = marquee.offsetTop;
-      const cardsTopPx = Math.max(0, window.innerHeight - marqueeHeight - gap);
-      const pinStartPx = cardsTopPx - marqueeTop;
-      const pause = isMobile()
-        ? Math.min(window.innerHeight * 0.22, 200)
-        : Math.min(window.innerHeight * 0.3, 320);
+        const gap = isMobile() ? 24 : 40;
+        const marqueeHeight = marquee.offsetHeight;
+        const marqueeTop = marquee.offsetTop;
+        const cardsTopPx = Math.max(
+          0,
+          window.innerHeight - marqueeHeight - gap,
+        );
+        const pinStartPx = cardsTopPx - marqueeTop;
+        const pause = isMobile()
+          ? Math.min(window.innerHeight * 0.22, 200)
+          : Math.min(window.innerHeight * 0.3, 320);
 
-      return {
-        start: `top ${pinStartPx}px`,
-        distance,
-        pause,
-        totalScroll: pause * 2 + distance,
+        return {
+          start: `top ${pinStartPx}px`,
+          distance,
+          pause,
+          totalScroll: pause * 2 + distance,
+        };
       };
-    };
 
-    let ctx: ReturnType<typeof gsap.context> | undefined;
-    let rebuildTimer: ReturnType<typeof setTimeout> | undefined;
-    let onLayoutChange: (() => void) | undefined;
+      let timeline: gsap.core.Timeline | undefined;
+      let rebuildTimer: ReturnType<typeof setTimeout> | undefined;
+      let onLayoutChange: (() => void) | undefined;
+      let refreshFrame: number | undefined;
 
-    try {
-      ctx = gsap.context(() => {
+      try {
         gsap.set(track, { x: 0 });
 
         if (prefersReducedMotion) {
           marquee.classList.add("home-marquee--native");
-          return;
+          refreshFrame = window.requestAnimationFrame(() =>
+            ScrollTrigger.refresh(),
+          );
+
+          return () => {
+            if (refreshFrame !== undefined) {
+              window.cancelAnimationFrame(refreshFrame);
+            }
+            marquee.classList.remove("home-marquee--native");
+            gsap.set(track, { clearProps: "transform" });
+            ScrollTrigger.refresh();
+          };
         }
 
         marquee.classList.remove("home-marquee--native");
-
-        let timeline: gsap.core.Timeline | undefined;
 
         const buildScroll = () => {
           timeline?.scrollTrigger?.kill();
@@ -167,42 +185,54 @@ export default function NextSection({
           rebuildTimer = setTimeout(() => {
             buildScroll();
             ScrollTrigger.refresh();
-          }, 250);
+          }, motion.refreshDebounceMs);
         };
 
         window.addEventListener("resize", onLayoutChange);
         window.addEventListener("orientationchange", onLayoutChange);
-      }, section);
 
-      requestAnimationFrame(() => {
-        ScrollTrigger.refresh();
-      });
+        refreshFrame = window.requestAnimationFrame(() => {
+          ScrollTrigger.refresh();
+        });
 
-      return () => {
-        if (rebuildTimer) clearTimeout(rebuildTimer);
-        if (onLayoutChange) {
-          window.removeEventListener("resize", onLayoutChange);
-          window.removeEventListener("orientationchange", onLayoutChange);
+        return () => {
+          if (refreshFrame !== undefined) {
+            window.cancelAnimationFrame(refreshFrame);
+          }
+          if (rebuildTimer) clearTimeout(rebuildTimer);
+          if (onLayoutChange) {
+            window.removeEventListener("resize", onLayoutChange);
+            window.removeEventListener("orientationchange", onLayoutChange);
+          }
+          marquee?.classList.remove("home-marquee--native");
+          gsap.set(track, { clearProps: "transform" });
+          ScrollTrigger.refresh();
+        };
+      } catch (error) {
+        if (process.env.NODE_ENV === "development") {
+          console.warn("[NextSection] Animation unavailable:", error);
         }
-        ctx?.revert();
-        marquee?.classList.remove("home-marquee--native");
+        timeline?.scrollTrigger?.kill();
+        timeline?.kill();
         gsap.set(track, { clearProps: "transform" });
-        ScrollTrigger.refresh();
-      };
-    } catch (error) {
-      if (process.env.NODE_ENV === "development") {
-        console.warn("[NextSection] Animation unavailable:", error);
+        heading?.querySelectorAll<HTMLElement>(".hero-word").forEach((word) => {
+          gsap.set(word, { y: "0%" });
+        });
       }
-      ctx?.revert();
-      gsap.set(track, { clearProps: "transform" });
-      heading?.querySelectorAll<HTMLElement>(".hero-word").forEach((word) => {
-        gsap.set(word, { y: "0%" });
-      });
-    }
-  }, [prefersReducedMotion]);
+    },
+    {
+      scope: sectionRef,
+      dependencies: [prefersReducedMotion],
+      revertOnUpdate: true,
+    },
+  );
 
   return (
-    <section ref={sectionRef} id="work" className="home-principles text-neutral-900">
+    <section
+      ref={sectionRef}
+      id="work"
+      className="home-principles text-neutral-900"
+    >
       <div ref={pinRef} className="home-principles-pin">
         <div className="home-section-inner home-section-inner--features">
           <h2 ref={headingRef} className="home-principles-heading">

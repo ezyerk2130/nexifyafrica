@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import RevealText from "@/components/RevealText";
 import { HOME_FAQ_ITEMS } from "@/data/homeFaq";
+import { useBatchReveal } from "@/hooks/useBatchReveal";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+import { useScrollWordReveal } from "@/hooks/useScrollWordReveal";
 
 type FaqItem = { id: string; question: string; answer: string };
-import { useScrollWordReveal } from "@/hooks/useScrollWordReveal";
-import { gsap, ScrollTrigger } from "@/lib/gsap";
 
 function FaqToggleIcon({ open }: { open: boolean }) {
   return (
@@ -42,7 +42,11 @@ type Props = {
   heading?: string;
 };
 
-export default function HomeFaqSection({ items, headingItalic, heading }: Props = {}) {
+export default function HomeFaqSection({
+  items,
+  headingItalic,
+  heading,
+}: Props = {}) {
   const FAQ_ITEMS = items ?? HOME_FAQ_ITEMS;
   const italicText = headingItalic || DEFAULT_FAQ_HEADING_ITALIC;
   const mainText = heading || DEFAULT_FAQ_HEADING;
@@ -54,51 +58,15 @@ export default function HomeFaqSection({ items, headingItalic, heading }: Props 
   const prefersReducedMotion = usePrefersReducedMotion();
 
   useScrollWordReveal(headingRef, sectionRef, prefersReducedMotion);
-
-  useEffect(() => {
-    const section = sectionRef.current;
-    const list = listRef.current;
-    if (!section || !list) return;
-
-    const items = list.querySelectorAll<HTMLElement>(".home-faq-item");
-
-    if (prefersReducedMotion) {
-      gsap.set(items, { opacity: 1, y: 0 });
-      return;
-    }
-
-    let ctx: ReturnType<typeof gsap.context> | undefined;
-    try {
-      gsap.set(items, { opacity: 0, y: 40 });
-
-      ctx = gsap.context(() => {
-        ScrollTrigger.batch(items, {
-          start: "top 90%",
-          once: true,
-          onEnter: (batch) => {
-            gsap.to(batch, {
-              opacity: 1,
-              y: 0,
-              duration: 0.8,
-              stagger: 0.07,
-              ease: "power4.out",
-              overwrite: true,
-            });
-          },
-        });
-      }, section);
-
-      return () => {
-        ctx?.revert();
-      };
-    } catch (error) {
-      if (process.env.NODE_ENV === "development") {
-        console.warn("[HomeFaqSection] Animation unavailable:", error);
-      }
-      ctx?.revert();
-      gsap.set(items, { opacity: 1, y: 0 });
-    }
-  }, [prefersReducedMotion]);
+  useBatchReveal({
+    scopeRef: sectionRef,
+    targets: ".home-faq-item",
+    disabled: prefersReducedMotion,
+    y: 40,
+    start: "top 90%",
+    duration: 0.8,
+    stagger: 0.07,
+  });
 
   const toggleItem = (id: string) => {
     setOpenId((current) => (current === id ? null : id));
@@ -113,7 +81,11 @@ export default function HomeFaqSection({ items, headingItalic, heading }: Props 
     >
       <div className="home-section-inner home-section-inner--faq">
         <header className="home-faq-header">
-          <h2 id="home-faq-heading" ref={headingRef} className="home-faq-heading">
+          <h2
+            id="home-faq-heading"
+            ref={headingRef}
+            className="home-faq-heading"
+          >
             <RevealText
               block
               segments={[

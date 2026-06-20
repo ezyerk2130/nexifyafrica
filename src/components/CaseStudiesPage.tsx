@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import CaseStudiesHero from "@/components/CaseStudiesHero";
 import Footer from "@/components/Footer";
 import { CASE_STUDY_CARDS } from "@/data/caseStudies";
+import { useBatchReveal } from "@/hooks/useBatchReveal";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { caseStudyPathSegment } from "@/lib/slug";
 
 type CardItem = {
@@ -22,66 +24,31 @@ type Props = {
   heroLines?: string | string[];
   heroRevealLines?: string | string[];
 };
-import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
-import { gsap, ScrollTrigger } from "@/lib/gsap";
 
-export default function CaseStudiesPage({ cards, heroLines, heroRevealLines }: Props = {}) {
+export default function CaseStudiesPage({
+  cards,
+  heroLines,
+  heroRevealLines,
+}: Props = {}) {
   const CARDS = cards ?? CASE_STUDY_CARDS;
   const cardsSectionRef = useRef<HTMLElement>(null);
   const prefersReducedMotion = usePrefersReducedMotion();
 
-  useEffect(() => {
-    const section = cardsSectionRef.current;
-    if (!section) return;
-
-    const cardEls = section.querySelectorAll<HTMLElement>(".case-study-card");
-
-    if (prefersReducedMotion) {
-      gsap.set(cardEls, { opacity: 1, y: 0 });
-      return;
-    }
-
-    let ctx: ReturnType<typeof gsap.context> | undefined;
-    try {
-      gsap.set(cardEls, { opacity: 0, y: 48 });
-
-      ctx = gsap.context(() => {
-        ScrollTrigger.create({
-          trigger: section,
-          start: "top 82%",
-          once: true,
-          onEnter: () => {
-            gsap.to(cardEls, {
-              opacity: 1,
-              y: 0,
-              duration: 0.9,
-              stagger: 0.1,
-              ease: "power4.out",
-            });
-          },
-        });
-      }, section);
-
-      return () => {
-        ctx?.revert();
-      };
-    } catch (error) {
-      if (process.env.NODE_ENV === "development") {
-        console.warn("[CaseStudiesPage] Card animation unavailable:", error);
-      }
-      ctx?.revert();
-      gsap.set(cardEls, { opacity: 1, y: 0 });
-    }
-  }, [prefersReducedMotion]);
+  useBatchReveal({
+    scopeRef: cardsSectionRef,
+    targets: ".case-study-card",
+    disabled: prefersReducedMotion,
+    y: 48,
+    start: "top 82%",
+    duration: 0.9,
+    stagger: 0.1,
+  });
 
   return (
     <>
       <CaseStudiesHero lines={heroLines} revealLines={heroRevealLines} />
 
-      <section
-        ref={cardsSectionRef}
-        className="bg-[#F4F6F8] text-neutral-900"
-      >
+      <section ref={cardsSectionRef} className="bg-[#F4F6F8] text-neutral-900">
         <div className="mx-auto max-w-[1400px] px-6 pb-24 pt-16 sm:px-8 lg:px-12 lg:pb-32 lg:pt-20">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8">
             {CARDS.map((study) => (
@@ -104,7 +71,9 @@ export default function CaseStudiesPage({ cards, heroLines, heroRevealLines }: P
                     className="flex aspect-[16/10] w-full items-center justify-center rounded-xl bg-neutral-100"
                     aria-hidden="true"
                   >
-                    <span className="text-sm text-neutral-400">Case study image</span>
+                    <span className="text-sm text-neutral-400">
+                      Case study image
+                    </span>
                   </div>
                 )}
 
@@ -115,7 +84,9 @@ export default function CaseStudiesPage({ cards, heroLines, heroRevealLines }: P
                   >
                     {study.client.charAt(0)}
                   </span>
-                  <p className="text-sm font-medium text-neutral-700">{study.client}</p>
+                  <p className="text-sm font-medium text-neutral-700">
+                    {study.client}
+                  </p>
                 </div>
 
                 <h2 className="case-study-card-title mt-3 text-2xl leading-tight tracking-[-0.03em] text-neutral-900 sm:text-[1.65rem]">

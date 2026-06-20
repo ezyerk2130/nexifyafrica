@@ -1,9 +1,10 @@
 "use client";
 
-import { Fragment, useEffect, useRef, type ReactNode } from "react";
+import { Fragment, useRef, type ReactNode } from "react";
 import SiteNav from "@/components/SiteNav";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
-import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { mediaQueries, motion } from "@/lib/animation";
+import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsap";
 
 const GRADIENT_START = {
   top: "#003B8C",
@@ -20,11 +21,7 @@ const SCROLL_EXIT_END = SCROLL_EXIT + 0.18;
 const SCROLL_WHITE = 0.22;
 const REVEAL_TRIGGER = 0.36;
 const REVEAL_RESET = 0.28;
-const INTRO_WORD_REVEAL = {
-  duration: 1.2,
-  stagger: 0.05,
-  ease: "power4.out",
-} as const;
+const INTRO_WORD_REVEAL = motion.wordReveal;
 
 const HERO_COPY_LAYER_CLASS =
   "hero-copy-layer pointer-events-none absolute inset-0 flex w-full items-center justify-center px-6 pb-24 sm:px-8 sm:pb-0 lg:justify-start lg:px-16";
@@ -32,7 +29,9 @@ const HERO_COPY_LAYER_CLASS =
 // Hero copy is authored as a single field. We split it into words so each can
 // animate independently, while letting the words flow and wrap naturally —
 // the layout decides the line breaks, not the content.
-function toHeroText(value: string | readonly string[] | undefined | null): string {
+function toHeroText(
+  value: string | readonly string[] | undefined | null,
+): string {
   if (Array.isArray(value)) return value.join(" ");
   return ((value as string | undefined | null) ?? "").toString();
 }
@@ -54,7 +53,9 @@ function HeroWords({
         <Fragment key={`${word}-${wordIndex}`}>
           {wordIndex > 0 ? " " : null}
           <span className="hero-word-mask inline-block align-top">
-            <span className={`${wordClassName} inline-block will-change-transform`}>
+            <span
+              className={`${wordClassName} inline-block will-change-transform`}
+            >
               {word}
             </span>
           </span>
@@ -90,73 +91,76 @@ export default function PinnedHero({
   const revealText = toHeroText(revealLines);
   const hasReveal = revealText.trim().length > 0;
 
-  useEffect(() => {
-    const wrapper = wrapperRef.current;
-    const section = sectionRef.current;
-    const copy = copyRef.current;
-    const copyReveal = copyRevealRef.current;
-    const chrome = chromeRef.current;
-    const whiteOverlay = whiteOverlayRef.current;
+  useGSAP(
+    () => {
+      const wrapper = wrapperRef.current;
+      const section = sectionRef.current;
+      const copy = copyRef.current;
+      const copyReveal = copyRevealRef.current;
+      const chrome = chromeRef.current;
+      const whiteOverlay = whiteOverlayRef.current;
 
-    if (!wrapper || !section || !copy || !chrome || !whiteOverlay) {
-      return;
-    }
-
-    if (hasReveal && !copyReveal) {
-      return;
-    }
-
-    const words = copy.querySelectorAll<HTMLElement>(".hero-word");
-    const introLines = copy.querySelectorAll<HTMLElement>(".hero-intro-line");
-    const revealWords = copyReveal?.querySelectorAll<HTMLElement>(".hero-word-reveal");
-    const revealLineEls = copyReveal?.querySelectorAll<HTMLElement>(".hero-reveal-line");
-    const headerItems = section.querySelectorAll<HTMLElement>(".hero-header-item");
-
-    const setFinalState = () => {
-      gsap.set(section, {
-        "--gradient-top": GRADIENT_END.top,
-        "--gradient-bottom": GRADIENT_END.bottom,
-      });
-      gsap.set(words, { y: "0%" });
-      gsap.set(headerItems, { opacity: 1, y: 0 });
-      gsap.set(whiteOverlay, { opacity: 1 });
-      gsap.set(introLines, { color: "#0c1018" });
-      if (copyReveal) {
-        gsap.set(copyReveal, { opacity: 1, y: 0, visibility: "visible" });
+      if (!wrapper || !section || !copy || !chrome || !whiteOverlay) {
+        return;
       }
-      if (revealWords?.length) {
-        gsap.set(revealWords, { y: "0%" });
-      }
-      if (revealLineEls?.length) {
-        gsap.set(revealLineEls, { color: "#0c1018" });
-      }
-    };
 
-    if (prefersReducedMotion) {
-      setFinalState();
-      return;
-    }
-
-    let ctx: ReturnType<typeof gsap.context> | undefined;
-    try {
-      gsap.set(section, {
-        "--gradient-top": GRADIENT_START.top,
-        "--gradient-bottom": GRADIENT_START.bottom,
-      });
-
-      if (copyReveal) {
-        gsap.set(copyReveal, { opacity: 0, y: 24, visibility: "hidden" });
+      if (hasReveal && !copyReveal) {
+        return;
       }
-      if (revealWords?.length) {
-        gsap.set(revealWords, { y: "100%" });
-      }
-      if (revealLineEls?.length) {
-        gsap.set(revealLineEls, { color: "#ffffff" });
-      }
-      gsap.set(introLines, { color: "#ffffff" });
-      gsap.set(whiteOverlay, { opacity: 0 });
 
-      ctx = gsap.context(() => {
+      const words = copy.querySelectorAll<HTMLElement>(".hero-word");
+      const introLines = copy.querySelectorAll<HTMLElement>(".hero-intro-line");
+      const revealWords =
+        copyReveal?.querySelectorAll<HTMLElement>(".hero-word-reveal");
+      const revealLineEls =
+        copyReveal?.querySelectorAll<HTMLElement>(".hero-reveal-line");
+      const headerItems =
+        section.querySelectorAll<HTMLElement>(".hero-header-item");
+
+      const setFinalState = () => {
+        gsap.set(section, {
+          "--gradient-top": GRADIENT_END.top,
+          "--gradient-bottom": GRADIENT_END.bottom,
+        });
+        gsap.set(words, { y: "0%" });
+        gsap.set(headerItems, { opacity: 1, y: 0 });
+        gsap.set(whiteOverlay, { opacity: 1 });
+        gsap.set(introLines, { color: "#0c1018" });
+        if (copyReveal) {
+          gsap.set(copyReveal, { opacity: 1, y: 0, visibility: "visible" });
+        }
+        if (revealWords?.length) {
+          gsap.set(revealWords, { y: "0%" });
+        }
+        if (revealLineEls?.length) {
+          gsap.set(revealLineEls, { color: "#0c1018" });
+        }
+      };
+
+      if (prefersReducedMotion) {
+        setFinalState();
+        return;
+      }
+
+      let refreshFrame: number | undefined;
+      try {
+        gsap.set(section, {
+          "--gradient-top": GRADIENT_START.top,
+          "--gradient-bottom": GRADIENT_START.bottom,
+        });
+
+        if (copyReveal) {
+          gsap.set(copyReveal, { opacity: 0, y: 24, visibility: "hidden" });
+        }
+        if (revealWords?.length) {
+          gsap.set(revealWords, { y: "100%" });
+        }
+        if (revealLineEls?.length) {
+          gsap.set(revealLineEls, { color: "#ffffff" });
+        }
+        gsap.set(introLines, { color: "#ffffff" });
+        gsap.set(whiteOverlay, { opacity: 0 });
+
         const loadTl = gsap.timeline({ defaults: { ease: "power4.out" } });
 
         loadTl.fromTo(
@@ -216,7 +220,9 @@ export default function PinnedHero({
           gsap.set(headerItems, { opacity: 0, y: -16 });
           gsap.set(introLines, { color: "#ffffff" });
 
-          introRevealTl = gsap.timeline({ defaults: { ease: INTRO_WORD_REVEAL.ease } });
+          introRevealTl = gsap.timeline({
+            defaults: { ease: INTRO_WORD_REVEAL.ease },
+          });
           introRevealTl
             .to(
               words,
@@ -228,7 +234,11 @@ export default function PinnedHero({
               },
               0,
             )
-            .to(headerItems, { opacity: 1, y: 0, duration: INTRO_WORD_REVEAL.duration }, 0);
+            .to(
+              headerItems,
+              { opacity: 1, y: 0, duration: INTRO_WORD_REVEAL.duration },
+              0,
+            );
         };
 
         const updateIntroForScroll = (progress: number, direction: number) => {
@@ -255,7 +265,8 @@ export default function PinnedHero({
           introRevealTl = null;
           introAtTopShown = false;
 
-          const fadeT = (progress - SCROLL_EXIT) / (SCROLL_EXIT_END - SCROLL_EXIT);
+          const fadeT =
+            (progress - SCROLL_EXIT) / (SCROLL_EXIT_END - SCROLL_EXIT);
           gsap.set(copy, {
             opacity: 1 - fadeT,
             y: -24 * fadeT,
@@ -365,7 +376,7 @@ export default function PinnedHero({
 
         const mm = gsap.matchMedia();
 
-        mm.add("(min-width: 1024px)", () => {
+        mm.add(mediaQueries.desktop, () => {
           const scrollTl = buildScrollTimeline("+=200%", 1, true);
           return () => {
             scrollTl.scrollTrigger?.kill();
@@ -373,7 +384,7 @@ export default function PinnedHero({
           };
         });
 
-        mm.add("(max-width: 1023px)", () => {
+        mm.add(mediaQueries.touch, () => {
           const scrollTl = buildScrollTimeline("+=360%", 0.85, false);
           return () => {
             scrollTl.scrollTrigger?.kill();
@@ -381,25 +392,30 @@ export default function PinnedHero({
           };
         });
 
+        refreshFrame = window.requestAnimationFrame(() =>
+          ScrollTrigger.refresh(),
+        );
+
         return () => {
+          if (refreshFrame !== undefined) {
+            window.cancelAnimationFrame(refreshFrame);
+          }
           mm.revert();
+          ScrollTrigger.refresh();
         };
-      }, wrapper);
-
-      requestAnimationFrame(() => ScrollTrigger.refresh());
-
-      return () => {
-        ctx?.revert();
-        ScrollTrigger.refresh();
-      };
-    } catch (error) {
-      if (process.env.NODE_ENV === "development") {
-        console.warn("[PinnedHero] Animation unavailable:", error);
+      } catch (error) {
+        if (process.env.NODE_ENV === "development") {
+          console.warn("[PinnedHero] Animation unavailable:", error);
+        }
+        setFinalState();
       }
-      ctx?.revert();
-      setFinalState();
-    }
-  }, [hasReveal, prefersReducedMotion]);
+    },
+    {
+      scope: wrapperRef,
+      dependencies: [hasReveal, prefersReducedMotion],
+      revertOnUpdate: true,
+    },
+  );
 
   return (
     <div ref={wrapperRef} className="relative">

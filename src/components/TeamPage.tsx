@@ -1,23 +1,29 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import Footer from "@/components/Footer";
 import TeamHero from "@/components/TeamHero";
-import {
-  TEAM_IMAGE,
-  TEAM_MEMBERS,
-  type TeamMember,
-} from "@/data/team";
-
-type TeamMemberItem = Pick<TeamMember, "name" | "role"> & { id?: string; portraitUrl?: string };
+import { TEAM_IMAGE, TEAM_MEMBERS, type TeamMember } from "@/data/team";
+import { useBatchReveal } from "@/hooks/useBatchReveal";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
-import { gsap, ScrollTrigger } from "@/lib/gsap";
 
-const LAYOUT_INNER =
-  "mx-auto w-full max-w-[1400px] px-6 sm:px-8 lg:px-12";
+type TeamMemberItem = Pick<TeamMember, "name" | "role"> & {
+  id?: string;
+  portraitUrl?: string;
+};
 
-function TeamCard({ member, defaultImageUrl, index }: { member: TeamMemberItem; defaultImageUrl: string; index: number }) {
+const LAYOUT_INNER = "mx-auto w-full max-w-[1400px] px-6 sm:px-8 lg:px-12";
+
+function TeamCard({
+  member,
+  defaultImageUrl,
+  index,
+}: {
+  member: TeamMemberItem;
+  defaultImageUrl: string;
+  index: number;
+}) {
   const [isHovered, setIsHovered] = useState(false);
   const imageSrc = member.portraitUrl ?? defaultImageUrl;
 
@@ -59,57 +65,27 @@ type Props = {
   heroRevealLines?: string | readonly string[];
 };
 
-export default function TeamPage({ members, defaultImageUrl, heroLines, heroRevealLines }: Props = {}) {
+export default function TeamPage({
+  members,
+  defaultImageUrl,
+  heroLines,
+  heroRevealLines,
+}: Props = {}) {
   const MEMBERS = members ?? TEAM_MEMBERS;
   const DEFAULT_IMAGE = defaultImageUrl ?? TEAM_IMAGE;
   const sectionRef = useRef<HTMLElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = usePrefersReducedMotion();
 
-  useEffect(() => {
-    const section = sectionRef.current;
-    const grid = gridRef.current;
-    if (!section || !grid) return;
-
-    const cards = grid.querySelectorAll<HTMLElement>(".team-card-wrap");
-
-    if (prefersReducedMotion) {
-      gsap.set(cards, { opacity: 1, y: 0 });
-      return;
-    }
-
-    let ctx: ReturnType<typeof gsap.context> | undefined;
-    try {
-      gsap.set(cards, { opacity: 0, y: 56 });
-
-      ctx = gsap.context(() => {
-        ScrollTrigger.batch(cards, {
-          start: "top 90%",
-          once: true,
-          onEnter: (batch) => {
-            gsap.to(batch, {
-              opacity: 1,
-              y: 0,
-              duration: 0.9,
-              stagger: 0.09,
-              ease: "power4.out",
-              overwrite: true,
-            });
-          },
-        });
-      }, section);
-
-      return () => {
-        ctx?.revert();
-      };
-    } catch (error) {
-      if (process.env.NODE_ENV === "development") {
-        console.warn("[TeamPage] Animation unavailable:", error);
-      }
-      ctx?.revert();
-      gsap.set(cards, { opacity: 1, y: 0 });
-    }
-  }, [prefersReducedMotion]);
+  useBatchReveal({
+    scopeRef: sectionRef,
+    targets: ".team-card-wrap",
+    disabled: prefersReducedMotion,
+    y: 56,
+    start: "top 90%",
+    duration: 0.9,
+    stagger: 0.09,
+  });
 
   return (
     <>
@@ -119,7 +95,12 @@ export default function TeamPage({ members, defaultImageUrl, heroLines, heroReve
         <div className={`${LAYOUT_INNER} pb-24 pt-16 lg:pb-32 lg:pt-20`}>
           <div ref={gridRef} className="team-grid">
             {MEMBERS.map((member, index) => (
-              <TeamCard key={member.id ?? index} member={member} defaultImageUrl={DEFAULT_IMAGE} index={index} />
+              <TeamCard
+                key={member.id ?? index}
+                member={member}
+                defaultImageUrl={DEFAULT_IMAGE}
+                index={index}
+              />
             ))}
           </div>
         </div>
