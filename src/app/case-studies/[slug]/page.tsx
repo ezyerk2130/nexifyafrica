@@ -11,6 +11,7 @@ import {
   getCaseStudyBySlug,
   type CaseStudyDetail,
 } from "@/data/caseStudies";
+import { caseStudyPathSegment } from "@/lib/slug";
 
 type CaseStudyRouteProps = {
   params: Promise<{ slug: string }>;
@@ -27,6 +28,7 @@ export async function generateMetadata({
   params,
 }: CaseStudyRouteProps): Promise<Metadata> {
   const { slug } = await params;
+  const pathSegment = caseStudyPathSegment(slug);
 
   const sanityStudy = await getCaseStudyBySlugFromSanity(slug).catch(() => null);
   if (sanityStudy?.slug?.current) {
@@ -37,7 +39,7 @@ export async function generateMetadata({
     };
   }
 
-  const localStudy = getCaseStudyBySlug(slug);
+  const localStudy = getCaseStudyBySlug(pathSegment);
   if (localStudy) {
     const overview = localStudy.sections.find((s) => s.id === "overview");
     return {
@@ -51,6 +53,7 @@ export async function generateMetadata({
 
 export default async function CaseStudyRoute({ params }: CaseStudyRouteProps) {
   const { slug } = await params;
+  const pathSegment = caseStudyPathSegment(slug);
 
   // Try Sanity first, then fall back to local static data
   const sanityStudy = await getCaseStudyBySlugFromSanity(slug).catch(() => null);
@@ -76,11 +79,11 @@ export default async function CaseStudyRoute({ params }: CaseStudyRouteProps) {
           id: section.id?.current ?? (section.id as unknown as string),
           title: section.title,
           paragraphs: section.paragraphs ?? [],
-          bullets: section.bullets,
+          bullets: section.bullets ?? undefined,
           image: src
             ? {
                 src,
-                alt: section.image?.alt,
+                alt: section.image?.alt ?? undefined,
                 variant: section.image?.variant ?? "wide",
               }
             : undefined,
@@ -88,7 +91,7 @@ export default async function CaseStudyRoute({ params }: CaseStudyRouteProps) {
       }),
     };
   } else {
-    study = getCaseStudyBySlug(slug);
+    study = getCaseStudyBySlug(pathSegment);
   }
 
   if (!study) {

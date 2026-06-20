@@ -6,13 +6,14 @@ import Image from "next/image";
 import CaseStudiesHero from "@/components/CaseStudiesHero";
 import Footer from "@/components/Footer";
 import { CASE_STUDY_CARDS } from "@/data/caseStudies";
+import { caseStudyPathSegment } from "@/lib/slug";
 
 type CardItem = {
   client: string;
   title: string;
   metric: string;
   metricLabel: string;
-  slug?: string;
+  slug?: string | null;
   imageUrl?: string;
 };
 
@@ -133,7 +134,7 @@ export default function CaseStudiesPage({ cards, heroLines, heroRevealLines }: P
 
                   {study.slug ? (
                     <Link
-                      href={`/case-studies/${study.slug}`}
+                      href={`/case-studies/${caseStudyPathSegment(study.slug)}`}
                       className="site-button site-button--blue w-full shrink-0 justify-center lg:w-auto"
                     >
                       Read case study

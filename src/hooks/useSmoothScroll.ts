@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import Lenis from "lenis";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
@@ -8,9 +8,12 @@ import { gsap, ScrollTrigger } from "@/lib/gsap";
 /** Lenis stays desktop-only; mobile uses native scroll with ScrollTrigger pin. */
 const DESKTOP_MQ = "(min-width: 1024px)";
 const TOUCH_MQ = "(max-width: 1023px)";
+const useBrowserLayoutEffect =
+  typeof window === "undefined" ? useEffect : useLayoutEffect;
 
-export function useSmoothScroll(enabled = true) {
+export function useSmoothScroll(enabled = true, resetKey?: string) {
   const prefersReducedMotion = usePrefersReducedMotion();
+  const lenisRef = useRef<Lenis | null>(null);
 
   useEffect(() => {
     if (!enabled || prefersReducedMotion || typeof document === "undefined") return;
@@ -33,6 +36,7 @@ export function useSmoothScroll(enabled = true) {
         wheelMultiplier: 1,
         touchMultiplier: 1,
       });
+      lenisRef.current = lenis;
 
       ScrollTrigger.scrollerProxy(scroller, {
         scrollTop(value) {
@@ -56,6 +60,9 @@ export function useSmoothScroll(enabled = true) {
 
       return () => {
         lenis.destroy();
+        if (lenisRef.current === lenis) {
+          lenisRef.current = null;
+        }
         ScrollTrigger.clearScrollMemory();
         ScrollTrigger.refresh();
       };
@@ -81,4 +88,26 @@ export function useSmoothScroll(enabled = true) {
       ScrollTrigger.refresh();
     };
   }, [enabled, prefersReducedMotion]);
+
+  useBrowserLayoutEffect(() => {
+    if (!enabled || typeof window === "undefined") return;
+
+    const resetScroll = () => {
+      if (window.location.hash) return;
+
+      ScrollTrigger.clearScrollMemory();
+      lenisRef.current?.scrollTo(0, { immediate: true, force: true });
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      ScrollTrigger.refresh();
+    };
+
+    resetScroll();
+    const frame = window.requestAnimationFrame(resetScroll);
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+    };
+  }, [enabled, resetKey]);
 }

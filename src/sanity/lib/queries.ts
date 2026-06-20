@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { caseStudyPathSegment, decodePathSegment } from "@/lib/slug";
 import { client } from "./client";
 
 // ─── Shared fetch helper ──────────────────────────────────────────────────────
@@ -55,9 +56,9 @@ export type SanityCaseStudyCard = {
   _id: string;
   title: string;
   slug: { current: string };
-  cardClient: string;
-  metric: string;
-  metricLabel: string;
+  cardClient?: string | null;
+  metric?: string | null;
+  metricLabel?: string | null;
   cardImage?: { asset: { _ref: string; _type: "reference" } };
 };
 
@@ -75,12 +76,12 @@ export type HeroText = string | string[];
 export type SanityCaseStudyContentBlock = {
   id: { current: string };
   title: string;
-  paragraphs: string[];
-  bullets?: string[];
+  paragraphs?: string[] | null;
+  bullets?: string[] | null;
   image?: {
-    asset: SanityImageRef["asset"];
-    alt?: string;
-    variant: "wide" | "square";
+    asset?: SanityImageRef["asset"] | null;
+    alt?: string | null;
+    variant?: "wide" | "square" | null;
   };
 };
 
@@ -257,6 +258,19 @@ const CASE_STUDY_SECTION_FIELDS = `
   }
 `;
 
+const CASE_STUDY_DETAIL_FIELDS = `
+  _id,
+  title,
+  slug,
+  heroLines,
+  heroRevealLines,
+  cardClient,
+  metric,
+  metricLabel,
+  sidebar,
+  sections[] { ${CASE_STUDY_SECTION_FIELDS} }
+`;
+
 export async function getCaseStudyCards(): Promise<SanityCaseStudyCard[]> {
   return sanityFetchList<SanityCaseStudyCard>(
     `*[_type == "caseStudy"] | order(title asc) { ${CASE_STUDY_CARD_FIELDS} }`,
@@ -273,29 +287,46 @@ export async function getAllCaseStudySlugsFromSanity(): Promise<string[]> {
   );
   return results
     .map((r) => r.slug?.current)
-    .filter((s): s is string => typeof s === "string" && s.length > 0);
+    .filter((s): s is string => typeof s === "string" && s.length > 0)
+    .map(caseStudyPathSegment);
+}
+
+function uniqueCaseStudySlugCandidates(slug: string): string[] {
+  const decoded = decodePathSegment(slug);
+  const encoded = encodeURIComponent(decoded);
+  return Array.from(new Set([slug, decoded, encoded])).filter(Boolean);
+}
+
+function matchesCaseStudyPath(study: SanityCaseStudyDetail, pathSegment: string) {
+  return [study.slug?.current, study.title]
+    .filter((value): value is string => typeof value === "string" && value.length > 0)
+    .some((value) => caseStudyPathSegment(value) === pathSegment);
 }
 
 export async function getCaseStudyBySlugFromSanity(
   slug: string,
 ): Promise<SanityCaseStudyDetail | null> {
+  const slugCandidates = uniqueCaseStudySlugCandidates(slug);
+
   const result = await sanityFetch<SanityCaseStudyDetail | null>(
-    `*[_type == "caseStudy" && slug.current == $slug][0] {
-      _id,
-      title,
-      slug,
-      heroLines,
-      heroRevealLines,
-      cardClient,
-      metric,
-      metricLabel,
-      sidebar,
-      sections[] { ${CASE_STUDY_SECTION_FIELDS} }
-    }`,
-    { slug },
+    `*[_type == "caseStudy" && slug.current in $slugs][0] { ${CASE_STUDY_DETAIL_FIELDS} }`,
+    { slugs: slugCandidates },
     ["caseStudy"],
   );
-  return result ?? null;
+  if (result) return result;
+
+  const normalizedPathSegment = caseStudyPathSegment(slug);
+  const fallbackResults = await sanityFetchList<SanityCaseStudyDetail>(
+    `*[_type == "caseStudy"] { ${CASE_STUDY_DETAIL_FIELDS} }`,
+    {},
+    ["caseStudy"],
+  );
+
+  return (
+    fallbackResults.find((study) =>
+      matchesCaseStudyPath(study, normalizedPathSegment),
+    ) ?? null
+  );
 }
 
 export async function getServices(): Promise<SanityService[]> {

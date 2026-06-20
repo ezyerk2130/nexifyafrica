@@ -12,7 +12,7 @@ export default function SmoothScrollProvider({
 }) {
   const pathname = usePathname();
   const isStudio = pathname.startsWith("/studio");
-  useSmoothScroll(!isStudio);
+  useSmoothScroll(!isStudio, pathname);
 
   useEffect(() => {
     if (!isStudio) ScrollTrigger.refresh();

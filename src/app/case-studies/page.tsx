@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import CaseStudiesPage from "@/components/CaseStudiesPage";
 import { getCaseStudyCards, getHomePage } from "@/sanity/lib/queries";
 import { imageUrl } from "@/sanity/lib/image";
+import { caseStudyPathSegment } from "@/lib/slug";
 
 export const metadata: Metadata = {
   title: "Case Studies",
@@ -21,9 +22,9 @@ export default async function CaseStudiesRoute() {
           cards: cards.map((c) => ({
             client: c.cardClient ?? c.title?.split(" ")[0] ?? "",
             title: c.title ?? "",
-            metric: c.metric,
-            metricLabel: c.metricLabel,
-            slug: c.slug?.current,
+            metric: c.metric ?? "",
+            metricLabel: c.metricLabel ?? "",
+            slug: c.slug?.current ? caseStudyPathSegment(c.slug.current) : undefined,
             imageUrl: imageUrl(c.cardImage, 800) ?? undefined,
           })),
         }
