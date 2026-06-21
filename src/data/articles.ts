@@ -39,6 +39,9 @@ export type ArticleDetail = ArticleSummary & {
     alt: string;
     position?: string;
   }>;
+  seoTitle?: string;
+  seoDescription?: string;
+  ogImage?: string;
 };
 
 const DETAIL_SECTIONS: ArticleSection[] = [
@@ -53,7 +56,7 @@ const DETAIL_SECTIONS: ArticleSection[] = [
   },
   {
     id: "competition",
-    navLabel: "Why teams fail because of competition",
+    navLabel: "Most Startups Don’t Fail Because of Competition",
     title: "Most startups do not fail because of competition",
     paragraphs: [
       "Competition matters, but it is rarely the first problem. Early-stage teams usually lose momentum because they copy what the market appears to reward before they understand what their own customer truly needs.",
@@ -74,7 +77,7 @@ const DETAIL_SECTIONS: ArticleSection[] = [
   },
   {
     id: "mistakes",
-    navLabel: "Common product mistakes",
+    navLabel: "The Most Common Product Mistakes",
     title: "The most common product mistakes early startups make",
     paragraphs: [
       "Founders often fall in love with an idea. Users fall in love with solutions that reduce effort, remove uncertainty, and make the next action obvious.",
@@ -88,8 +91,17 @@ const DETAIL_SECTIONS: ArticleSection[] = [
     ],
   },
   {
+    id: "differently",
+    navLabel: "What Successful Startups Do Differently",
+    title: "What successful startups do differently",
+    paragraphs: [
+      "This does not mean your team needs to become deeply technical overnight. The sharpest founders make real customers, plain signals, and operating discipline the product of the company before the software becomes the product.",
+      "They do not chase every new feature. They document what the product does in the first risky seconds, and they turn honest feedback into one clear next decision.",
+    ],
+  },
+  {
     id: "roadmap",
-    navLabel: "Roadmap for building",
+    navLabel: "A Practical Roadmap for Building a Product That Lasts",
     title: "A practical roadmap for building a product that lasts",
     paragraphs: [
       "The strongest product roadmaps start with a narrow problem and a clear operating promise. They show who the product is for, what action it should make easier, and what evidence will prove it is working.",
@@ -98,7 +110,7 @@ const DETAIL_SECTIONS: ArticleSection[] = [
   },
   {
     id: "success",
-    navLabel: "What drives long-term success",
+    navLabel: "What Drives Long-Term SaaS Success",
     title: "What drives long-term SaaS success",
     paragraphs: [
       "Long-term success comes from compounding clarity. Each release should teach the team something useful about customer behavior, workflow constraints, or the economics of delivery.",
@@ -107,7 +119,7 @@ const DETAIL_SECTIONS: ArticleSection[] = [
   },
   {
     id: "closing",
-    navLabel: "Closing thoughts",
+    navLabel: "Closing Thoughts",
     title: "Closing thoughts",
     paragraphs: [
       "Teams win when they stop treating digital products as isolated builds and start treating them as business infrastructure. The product, the process, and the data should make each other stronger.",

@@ -1,3 +1,5 @@
+import { articleType } from "./article";
+import { blogPageType } from "./blogPage";
 import { careersPageType } from "./careersPage";
 import { caseStudyType } from "./caseStudy";
 import { contactPageType } from "./contactPage";
@@ -12,6 +14,7 @@ import { teamPageType } from "./teamPage";
 
 export const schemaTypes = [
   // Repeatable documents
+  articleType,
   caseStudyType,
   serviceType,
   faqItemType,
@@ -19,6 +22,7 @@ export const schemaTypes = [
   teamMemberType,
   // Singletons
   siteSettingsType,
+  blogPageType,
   homePageType,
   manifestoPageType,
   teamPageType,

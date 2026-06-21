@@ -5,6 +5,7 @@ import { schemaTypes } from "./src/sanity/schemaTypes";
 
 const SINGLETONS = [
   "siteSettings",
+  "blogPage",
   "homePage",
   "manifestoPage",
   "teamPage",
@@ -13,6 +14,7 @@ const SINGLETONS = [
 ] as const;
 const SINGLETON_LABELS: Record<string, string> = {
   siteSettings: "Site Settings",
+  blogPage: "Blog Page",
   homePage: "Home Page",
   manifestoPage: "Manifesto Page",
   teamPage: "Team Page",
@@ -33,6 +35,7 @@ export default defineConfig({
           .title("Content")
           .items([
             // Repeatable documents
+            S.documentTypeListItem("article").title("Blog Articles"),
             S.documentTypeListItem("caseStudy").title("Case Studies"),
             S.documentTypeListItem("service").title("Services"),
             S.documentTypeListItem("faqItem").title("FAQ Items"),

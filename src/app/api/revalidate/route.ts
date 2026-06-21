@@ -4,6 +4,8 @@ import { type NextRequest, NextResponse } from "next/server";
 
 const VALID_TAGS = [
   "sanity",
+  "article",
+  "blogPage",
   "caseStudy",
   "service",
   "faqItem",

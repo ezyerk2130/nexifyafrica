@@ -9,8 +9,12 @@
  */
 
 import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { basename, join } from "node:path";
 import { createClient } from "@sanity/client";
+import { config as loadEnv } from "dotenv";
+import { ARTICLES, type ArticleDetail } from "../src/data/articles";
+
+loadEnv({ path: ".env.local" });
 
 const client = createClient({
   projectId: "v0quzgcv",
@@ -362,7 +366,7 @@ const siteSettings = {
     { _key: "nav-manifesto", label: "Manifesto", href: "/manifesto" },
     { _key: "nav-team", label: "Team", href: "/team" },
     { _key: "nav-case-studies", label: "Case Studies", href: "/case-studies" },
-    { _key: "nav-articles", label: "Articles", href: "/articles" },
+    { _key: "nav-articles", label: "Blogs", href: "/articles" },
   ],
   contactLinkLabel: "Contact",
   contactLinkHref: "/contact",
@@ -391,6 +395,153 @@ const careersPage = {
   secondaryCtaHref: "/case-studies",
 };
 
+const blogPage = {
+  _id: "blogPage",
+  _type: "blogPage" as const,
+  kicker: "Blog Page",
+  heading: "Insights that help you build, grow, and scale smarter",
+  description:
+    "Practical notes on product strategy, automation, analytics, and the operating systems that help ambitious teams move with more confidence.",
+  newsletterPlaceholder: "Enter your email address",
+  newsletterButtonText: "Subscribe",
+  newsletterIdleText: "Monthly notes. No noise.",
+  newsletterSuccessText: "Thanks. The next Nexify note is on its way.",
+  readMoreLabel: "Read More",
+};
+
+type SeedSanityImage = {
+  _type: "image";
+  asset: { _type: "reference"; _ref: string };
+};
+
+const uploadedImageCache = new Map<string, Promise<SeedSanityImage | null>>();
+
+function withoutUndefined<T extends Record<string, unknown>>(value: T): T {
+  return Object.fromEntries(
+    Object.entries(value).filter(([, fieldValue]) => fieldValue !== undefined),
+  ) as T;
+}
+
+async function uploadPublicImage(src: string): Promise<SeedSanityImage | null> {
+  if (!src.startsWith("/")) return null;
+
+  if (!uploadedImageCache.has(src)) {
+    uploadedImageCache.set(
+      src,
+      (async () => {
+        const filePath = join(process.cwd(), "public", ...src.replace(/^\/+/, "").split("/"));
+        try {
+          const asset = await client.assets.upload("image", readFileSync(filePath), {
+            filename: basename(filePath),
+          });
+          return {
+            _type: "image" as const,
+            asset: { _type: "reference" as const, _ref: asset._id },
+          };
+        } catch (err) {
+          console.warn(`  ! could not upload article image ${src}`, err);
+          return null;
+        }
+      })(),
+    );
+  }
+
+  return uploadedImageCache.get(src)!;
+}
+
+async function buildArticleImage(
+  src: string,
+  alt: string,
+  position?: string,
+  variant?: "wide" | "half",
+) {
+  const image = await uploadPublicImage(src);
+  if (!image) return undefined;
+  return withoutUndefined({
+    asset: image,
+    alt,
+    position,
+    variant,
+  });
+}
+
+async function buildArticleDocument(article: ArticleDetail, index: number) {
+  const mainImage = await buildArticleImage(
+    article.image,
+    article.alt,
+    article.imagePosition,
+  );
+
+  const sections = await Promise.all(
+    article.sections.map(async (section, sectionIndex) =>
+      withoutUndefined({
+        _key: section.id || `section-${sectionIndex}`,
+        _type: "articleSection" as const,
+        id: { _type: "slug" as const, current: section.id },
+        navLabel: section.navLabel,
+        title: section.title,
+        paragraphs: section.paragraphs,
+        bullets: section.bullets,
+        image: section.image
+          ? await buildArticleImage(
+              section.image.src,
+              section.image.alt,
+              section.image.position,
+              section.image.variant,
+            )
+          : undefined,
+      }),
+    ),
+  );
+
+  const gallery = (
+    await Promise.all(
+      article.gallery.map(async (image, imageIndex) => {
+        const galleryImage = await buildArticleImage(image.src, image.alt, image.position);
+        return galleryImage
+          ? {
+              _key: `gallery-${imageIndex}`,
+              _type: "galleryImage" as const,
+              ...galleryImage,
+            }
+          : null;
+      }),
+    )
+  ).filter((image): image is NonNullable<typeof image> => image !== null);
+
+  return withoutUndefined({
+    _id: `article-${article.slug}`,
+    _type: "article" as const,
+    title: article.title,
+    slug: { _type: "slug" as const, current: article.slug },
+    category: article.category,
+    tone: article.tone,
+    excerpt: article.excerpt,
+    cardLabel: article.date,
+    publishedLabel: article.publishedLabel,
+    readTime: article.readTime,
+    author: article.author,
+    heroKicker: article.heroKicker,
+    mainImage,
+    intro: article.intro,
+    sections,
+    quote: article.quote,
+    gallery,
+    featured: index === 0,
+    seoTitle: article.seoTitle ?? article.title,
+    seoDescription: article.seoDescription ?? article.excerpt,
+    ogImage: mainImage?.asset,
+  });
+}
+
+async function seedArticles() {
+  for (const [index, article] of ARTICLES.entries()) {
+    const document = await buildArticleDocument(article, index);
+    await client.createOrReplace(document);
+    console.log(`  ✓ blog article: ${article.title}`);
+  }
+}
+
 // ─── Seed ─────────────────────────────────────────────────────────────────────
 
 async function seed() {
@@ -400,7 +551,20 @@ async function seed() {
     process.exit(1);
   }
 
-  console.log("Seeding Sanity dataset...\n");
+  const articlesOnly = process.argv.includes("--articles-only");
+
+  console.log(
+    articlesOnly
+      ? "Seeding Sanity blog articles...\n"
+      : "Seeding Sanity dataset...\n",
+  );
+
+  if (articlesOnly) {
+    await client.createOrReplace(blogPage);
+    await seedArticles();
+    console.log("\nDone! Refresh /studio and open Blog Articles.");
+    return;
+  }
 
   // Services
   for (const s of services) {
@@ -428,10 +592,12 @@ async function seed() {
 
   // Case study
   await client.createOrReplace(caseStudy);
+  await seedArticles();
   console.log(`  ✓ caseStudy: ${caseStudy.title}`);
 
   // Singletons
   await client.createOrReplace(siteSettings);
+  await client.createOrReplace(blogPage);
   console.log("  ✓ siteSettings singleton");
 
   await client.createOrReplace(careersPage);

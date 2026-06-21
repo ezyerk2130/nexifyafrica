@@ -10,4 +10,6 @@ export const client = createClient({
   // only hit at revalidation time.
   useCdn: false,
   perspective: "published",
+  timeout: 8000,
+  maxRetries: 1,
 });

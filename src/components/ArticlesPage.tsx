@@ -3,6 +3,8 @@
 import { type FormEvent, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import Footer from "@/components/Footer";
+import SiteNav from "@/components/SiteNav";
 import {
   ARTICLES,
   articlePath,
@@ -61,7 +63,36 @@ function MailIcon() {
   );
 }
 
-function NewsletterForm({ compact = false }: { compact?: boolean }) {
+type BlogPageSettings = {
+  kicker: string;
+  heading: string;
+  description: string;
+  newsletterPlaceholder: string;
+  newsletterButtonText: string;
+  newsletterIdleText: string;
+  newsletterSuccessText: string;
+  readMoreLabel: string;
+};
+
+const DEFAULT_BLOG_PAGE_SETTINGS: BlogPageSettings = {
+  kicker: "Blog Page",
+  heading: "Insights that help you build, grow, and scale smarter",
+  description:
+    "Practical notes on product strategy, automation, analytics, and the operating systems that help ambitious teams move with more confidence.",
+  newsletterPlaceholder: "Enter your email address",
+  newsletterButtonText: "Subscribe",
+  newsletterIdleText: "Monthly notes. No noise.",
+  newsletterSuccessText: "Thanks. The next Nexify note is on its way.",
+  readMoreLabel: "Read More",
+};
+
+function NewsletterForm({
+  compact = false,
+  settings,
+}: {
+  compact?: boolean;
+  settings: BlogPageSettings;
+}) {
   const [subscribed, setSubscribed] = useState(false);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -88,19 +119,19 @@ function NewsletterForm({ compact = false }: { compact?: boolean }) {
             id={compact ? "article-email-compact" : "article-email"}
             type="email"
             required
-            placeholder="Enter your email address"
+            placeholder={settings.newsletterPlaceholder}
             className="articles-newsletter-input"
           />
         </div>
         <button type="submit" className="articles-newsletter-button">
-          <span>Subscribe</span>
+          <span>{settings.newsletterButtonText}</span>
           <ArrowIcon />
         </button>
       </form>
       <p className="articles-newsletter-status" aria-live="polite">
         {subscribed
-          ? "Thanks. The next Nexify note is on its way."
-          : "Monthly notes. No noise."}
+          ? settings.newsletterSuccessText
+          : settings.newsletterIdleText}
       </p>
     </div>
   );
@@ -109,9 +140,11 @@ function NewsletterForm({ compact = false }: { compact?: boolean }) {
 function ArticleCard({
   article,
   index,
+  readMoreLabel,
 }: {
   article: ArticleSummary;
   index: number;
+  readMoreLabel: string;
 }) {
   return (
     <article id={article.slug} className="articles-card articles-reveal">
@@ -127,7 +160,7 @@ function ArticleCard({
             fill
             className="articles-card-image"
             sizes="(min-width: 1180px) 31vw, (min-width: 768px) 46vw, 100vw"
-            priority={index < 2}
+            preload={index < 2}
             style={{ objectPosition: article.imagePosition ?? "center" }}
           />
           <span className={`articles-card-chip articles-card-chip--${article.tone}`}>
@@ -142,7 +175,7 @@ function ArticleCard({
           <h3>{article.title}</h3>
           <p>{article.excerpt}</p>
           <span className="articles-card-cta">
-            Read more
+            {readMoreLabel}
             <ArrowIcon className="articles-card-arrow" />
           </span>
         </div>
@@ -151,7 +184,41 @@ function ArticleCard({
   );
 }
 
-export default function ArticlesPage() {
+type ArticlesPageProps = {
+  articles?: ArticleSummary[];
+  settings?: Partial<Record<keyof BlogPageSettings, string | null>> | null;
+};
+
+function normalizeBlogPageSettings(
+  settings?: Partial<Record<keyof BlogPageSettings, string | null>> | null,
+): BlogPageSettings {
+  return {
+    kicker: settings?.kicker?.trim() || DEFAULT_BLOG_PAGE_SETTINGS.kicker,
+    heading: settings?.heading?.trim() || DEFAULT_BLOG_PAGE_SETTINGS.heading,
+    description:
+      settings?.description?.trim() || DEFAULT_BLOG_PAGE_SETTINGS.description,
+    newsletterPlaceholder:
+      settings?.newsletterPlaceholder?.trim() ||
+      DEFAULT_BLOG_PAGE_SETTINGS.newsletterPlaceholder,
+    newsletterButtonText:
+      settings?.newsletterButtonText?.trim() ||
+      DEFAULT_BLOG_PAGE_SETTINGS.newsletterButtonText,
+    newsletterIdleText:
+      settings?.newsletterIdleText?.trim() ||
+      DEFAULT_BLOG_PAGE_SETTINGS.newsletterIdleText,
+    newsletterSuccessText:
+      settings?.newsletterSuccessText?.trim() ||
+      DEFAULT_BLOG_PAGE_SETTINGS.newsletterSuccessText,
+    readMoreLabel:
+      settings?.readMoreLabel?.trim() || DEFAULT_BLOG_PAGE_SETTINGS.readMoreLabel,
+  };
+}
+
+export default function ArticlesPage({
+  articles = ARTICLES,
+  settings: settingsOverride,
+}: ArticlesPageProps) {
+  const settings = normalizeBlogPageSettings(settingsOverride);
   const pageRef = useRef<HTMLElement>(null);
   const indexRef = useRef<HTMLElement>(null);
   const prefersReducedMotion = usePrefersReducedMotion();
@@ -213,29 +280,25 @@ export default function ArticlesPage() {
   });
 
   return (
-    <main ref={pageRef} className="articles-page">
+    <>
+      <div className="articles-shell">
+        <SiteNav variant="light" className="articles-site-nav" />
+      </div>
+      <main ref={pageRef} className="articles-page">
       <section className="articles-hero" aria-labelledby="articles-heading">
         <div className="articles-hero-inner">
           <p className="articles-kicker articles-hero-reveal">
             <span aria-hidden="true" />
-            Articles
+            {settings.kicker}
           </p>
           <h1 id="articles-heading" className="articles-hero-title articles-hero-reveal">
-            Clear thinking for teams building Africa&apos;s next digital advantage.
+            {settings.heading}
           </h1>
           <p className="articles-hero-copy articles-hero-reveal">
-            Practical notes on product strategy, automation, analytics, and the operating
-            systems that help ambitious teams move with more confidence.
+            {settings.description}
           </p>
           <div className="articles-hero-reveal">
-            <NewsletterForm />
-          </div>
-
-          <div className="articles-hero-dossier articles-hero-reveal" aria-hidden="true">
-            <div className="articles-dossier-line" />
-            <div className="articles-dossier-pill">Product</div>
-            <div className="articles-dossier-pill">Systems</div>
-            <div className="articles-dossier-pill">Growth</div>
+            <NewsletterForm settings={settings} />
           </div>
         </div>
       </section>
@@ -247,20 +310,19 @@ export default function ArticlesPage() {
           </h2>
 
           <div className="articles-grid" aria-label="Latest articles">
-            {ARTICLES.map((article, index) => (
-              <ArticleCard key={article.slug} article={article} index={index} />
+            {articles.map((article, index) => (
+              <ArticleCard
+                key={article.slug}
+                article={article}
+                index={index}
+                readMoreLabel={settings.readMoreLabel}
+              />
             ))}
           </div>
-
-          <aside className="articles-subscribe-band articles-reveal" aria-label="Subscribe to articles">
-            <div>
-              <p className="articles-subscribe-kicker">Nexify notes</p>
-              <h2>One sharp read for the next build decision.</h2>
-            </div>
-            <NewsletterForm compact />
-          </aside>
         </div>
       </section>
-    </main>
+      </main>
+      <Footer />
+    </>
   );
 }

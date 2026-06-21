@@ -1,6 +1,17 @@
 import { cache } from "react";
-import { caseStudyPathSegment, decodePathSegment } from "@/lib/slug";
+import type {
+  ArticleDetail,
+  ArticleSection,
+  ArticleSummary,
+  ArticleTone,
+} from "@/data/articles";
+import {
+  caseStudyPathSegment,
+  decodePathSegment,
+  normalizePathSegment,
+} from "@/lib/slug";
 import { client } from "./client";
+import { imageUrl } from "./image";
 
 // ─── Shared fetch helper ──────────────────────────────────────────────────────
 
@@ -50,6 +61,46 @@ export type SanityImageRef = {
   _type: "image";
   asset: { _ref: string; _type: "reference" };
   hotspot?: { x: number; y: number; width: number; height: number };
+};
+
+type SanityArticleImage = {
+  asset?: Parameters<typeof imageUrl>[0];
+  alt?: string | null;
+  position?: string | null;
+  variant?: "wide" | "half" | null;
+};
+
+export type SanityArticleContentBlock = {
+  id?: { current?: string } | null;
+  navLabel?: string | null;
+  title?: string | null;
+  paragraphs?: string[] | null;
+  bullets?: string[] | null;
+  image?: SanityArticleImage | null;
+};
+
+export type SanityArticle = {
+  _id: string;
+  title?: string | null;
+  slug?: { current?: string } | null;
+  category?: string | null;
+  cardLabel?: string | null;
+  publishedAt?: string | null;
+  publishedLabel?: string | null;
+  readTime?: string | null;
+  author?: string | null;
+  tone?: string | null;
+  excerpt?: string | null;
+  heroKicker?: string | null;
+  mainImage?: SanityArticleImage | null;
+  intro?: string | null;
+  sections?: SanityArticleContentBlock[] | null;
+  quote?: string | null;
+  gallery?: SanityArticleImage[] | null;
+  featured?: boolean | null;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  ogImage?: Parameters<typeof imageUrl>[0];
 };
 
 export type SanityCaseStudyCard = {
@@ -234,7 +285,205 @@ export type SanityCareersPage = {
   secondaryCtaHref?: string;
 };
 
+export type SanityBlogPage = {
+  kicker?: string;
+  heading?: string;
+  description?: string;
+  newsletterPlaceholder?: string;
+  newsletterButtonText?: string;
+  newsletterIdleText?: string;
+  newsletterSuccessText?: string;
+  readMoreLabel?: string;
+};
+
 // ─── Queries ──────────────────────────────────────────────────────────────────
+
+const ARTICLE_IMAGE_FIELDS = `
+  asset,
+  alt,
+  position
+`;
+
+const ARTICLE_SECTION_FIELDS = `
+  id,
+  navLabel,
+  title,
+  paragraphs,
+  bullets,
+  image {
+    ${ARTICLE_IMAGE_FIELDS},
+    variant
+  }
+`;
+
+const ARTICLE_CARD_FIELDS = `
+  _id,
+  title,
+  slug,
+  category,
+  cardLabel,
+  publishedAt,
+  readTime,
+  tone,
+  excerpt,
+  mainImage { ${ARTICLE_IMAGE_FIELDS} }
+`;
+
+const ARTICLE_DETAIL_FIELDS = `
+  ${ARTICLE_CARD_FIELDS},
+  publishedLabel,
+  author,
+  heroKicker,
+  intro,
+  sections[] { ${ARTICLE_SECTION_FIELDS} },
+  quote,
+  gallery[] { ${ARTICLE_IMAGE_FIELDS} },
+  featured,
+  seoTitle,
+  seoDescription,
+  ogImage
+`;
+
+const FALLBACK_ARTICLE_IMAGE = "/images/manifesto/hero-collaboration.png";
+const DEFAULT_ARTICLE_AUTHOR = "Nexify Africa";
+const ARTICLE_TONES: ArticleTone[] = ["strategy", "systems", "product", "growth"];
+
+const articleDateFormatter = new Intl.DateTimeFormat("en", {
+  month: "long",
+  day: "numeric",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
+function cleanText(value: string | null | undefined, fallback = "") {
+  const trimmed = value?.trim();
+  return trimmed && trimmed.length > 0 ? trimmed : fallback;
+}
+
+function cleanTextList(values: string[] | null | undefined) {
+  return (values ?? []).map((value) => value.trim()).filter(Boolean);
+}
+
+function formatArticleDate(value: string | null | undefined) {
+  if (!value) return "";
+  const date = new Date(`${value}T00:00:00.000Z`);
+  if (Number.isNaN(date.getTime())) return value;
+  return articleDateFormatter.format(date);
+}
+
+function articlePathSegment(value: string) {
+  const normalized = normalizePathSegment(value);
+  return normalized || encodeURIComponent(decodePathSegment(value).trim());
+}
+
+function normalizeArticleTone(value: string | null | undefined): ArticleTone {
+  return ARTICLE_TONES.includes(value as ArticleTone) ? (value as ArticleTone) : "strategy";
+}
+
+function articleSlugFromSanity(article: SanityArticle) {
+  const rawSlug = cleanText(article.slug?.current, cleanText(article.title));
+  return rawSlug ? articlePathSegment(rawSlug) : "";
+}
+
+function sanityArticleMatchesPath(article: SanityArticle, pathSegment: string) {
+  return [article.slug?.current, article.title]
+    .filter((value): value is string => typeof value === "string" && value.length > 0)
+    .some((value) => articlePathSegment(value) === pathSegment);
+}
+
+function toArticleSummary(article: SanityArticle): ArticleSummary | null {
+  const title = cleanText(article.title);
+  const slug = articleSlugFromSanity(article);
+  if (!title || !slug) return null;
+
+  const publishedLabel = cleanText(
+    article.publishedLabel,
+    formatArticleDate(article.publishedAt),
+  );
+  const image =
+    imageUrl(article.mainImage?.asset, 1400) ??
+    imageUrl(article.ogImage, 1400) ??
+    FALLBACK_ARTICLE_IMAGE;
+
+  return {
+    slug,
+    category: cleanText(article.category, "Article"),
+    date: cleanText(article.cardLabel, publishedLabel || "Nexify note"),
+    readTime: cleanText(article.readTime, "5 min read"),
+    title,
+    excerpt: cleanText(article.excerpt, cleanText(article.seoDescription, title)),
+    image,
+    alt: cleanText(article.mainImage?.alt, `${title} article image`),
+    imagePosition: cleanText(article.mainImage?.position, "center"),
+    tone: normalizeArticleTone(article.tone),
+  };
+}
+
+function toArticleSection(section: SanityArticleContentBlock): ArticleSection | null {
+  const title = cleanText(section.title);
+  if (!title) return null;
+
+  const idSource = cleanText(section.id?.current, title);
+  const sectionBullets = cleanTextList(section.bullets);
+  const imageSrc = imageUrl(section.image?.asset, 1200);
+
+  return {
+    id: articlePathSegment(idSource),
+    navLabel: cleanText(section.navLabel, title),
+    title,
+    paragraphs: cleanTextList(section.paragraphs),
+    bullets: sectionBullets.length ? sectionBullets : undefined,
+    image: imageSrc
+      ? {
+          src: imageSrc,
+          alt: cleanText(section.image?.alt, `${title} section image`),
+          variant: section.image?.variant === "half" ? "half" : "wide",
+          position: cleanText(section.image?.position, "center"),
+        }
+      : undefined,
+  };
+}
+
+function toArticleDetail(article: SanityArticle): ArticleDetail | null {
+  const summary = toArticleSummary(article);
+  if (!summary) return null;
+
+  const publishedLabel = cleanText(
+    article.publishedLabel,
+    formatArticleDate(article.publishedAt),
+  );
+
+  return {
+    ...summary,
+    heroKicker: cleanText(article.heroKicker, "Article Details"),
+    publishedLabel: publishedLabel || summary.date,
+    author: cleanText(article.author, DEFAULT_ARTICLE_AUTHOR),
+    intro: cleanText(article.intro, summary.excerpt),
+    sections: (article.sections ?? [])
+      .map(toArticleSection)
+      .filter((section): section is ArticleSection => section !== null),
+    quote: cleanText(article.quote),
+    gallery: (article.gallery ?? [])
+      .map((galleryImage) => {
+        const src = imageUrl(galleryImage.asset, 900);
+        if (!src) return null;
+        return {
+          src,
+          alt: cleanText(galleryImage.alt, `${summary.title} gallery image`),
+          position: cleanText(galleryImage.position, "center"),
+        };
+      })
+      .filter(
+        (
+          galleryImage,
+        ): galleryImage is { src: string; alt: string; position: string } =>
+          galleryImage !== null,
+      ),
+    seoTitle: cleanText(article.seoTitle),
+    seoDescription: cleanText(article.seoDescription),
+    ogImage: imageUrl(article.ogImage, 1400) ?? undefined,
+  };
+}
 
 const CASE_STUDY_CARD_FIELDS = `
   _id,
@@ -270,6 +519,77 @@ const CASE_STUDY_DETAIL_FIELDS = `
   sidebar,
   sections[] { ${CASE_STUDY_SECTION_FIELDS} }
 `;
+
+export async function getArticleSummariesFromSanity(): Promise<ArticleSummary[]> {
+  const results = await sanityFetchList<SanityArticle>(
+    `*[_type == "article"] | order(featured desc, publishedAt desc, _createdAt desc) { ${ARTICLE_CARD_FIELDS} }`,
+    {},
+    ["article"],
+  );
+  return results
+    .map(toArticleSummary)
+    .filter((article): article is ArticleSummary => article !== null);
+}
+
+export async function getAllArticleSlugsFromSanity(): Promise<string[]> {
+  const results = await sanityFetchList<SanityArticle>(
+    `*[_type == "article"] { _id, title, slug }`,
+    {},
+    ["article"],
+  );
+  return results.map(articleSlugFromSanity).filter(Boolean);
+}
+
+function uniqueArticleSlugCandidates(slug: string): string[] {
+  const decoded = decodePathSegment(slug);
+  const encoded = encodeURIComponent(decoded);
+  const normalized = normalizePathSegment(decoded);
+  return Array.from(new Set([slug, decoded, encoded, normalized])).filter(Boolean);
+}
+
+export async function getArticleBySlugFromSanity(
+  slug: string,
+): Promise<ArticleDetail | null> {
+  const slugCandidates = uniqueArticleSlugCandidates(slug);
+
+  const result = await sanityFetch<SanityArticle | null>(
+    `*[_type == "article" && slug.current in $slugs][0] { ${ARTICLE_DETAIL_FIELDS} }`,
+    { slugs: slugCandidates },
+    ["article"],
+  );
+  if (result) return toArticleDetail(result);
+
+  const normalizedPathSegment = articlePathSegment(slug);
+  const fallbackResults = await sanityFetchList<SanityArticle>(
+    `*[_type == "article"] | order(featured desc, publishedAt desc, _createdAt desc) { ${ARTICLE_DETAIL_FIELDS} }`,
+    {},
+    ["article"],
+  );
+
+  const matchedArticle =
+    fallbackResults.find((article) =>
+      sanityArticleMatchesPath(article, normalizedPathSegment),
+    ) ?? null;
+
+  return matchedArticle ? toArticleDetail(matchedArticle) : null;
+}
+
+export async function getRelatedArticlesFromSanity(
+  slug: string,
+  limit = 3,
+): Promise<ArticleSummary[]> {
+  const slugCandidates = uniqueArticleSlugCandidates(slug);
+  const results = await sanityFetchList<SanityArticle>(
+    `*[_type == "article" && !(slug.current in $slugs)] | order(featured desc, publishedAt desc, _createdAt desc) { ${ARTICLE_CARD_FIELDS} }`,
+    { slugs: slugCandidates },
+    ["article"],
+  );
+
+  return results
+    .map(toArticleSummary)
+    .filter((article): article is ArticleSummary => article !== null)
+    .slice(0, limit);
+}
 
 export async function getCaseStudyCards(): Promise<SanityCaseStudyCard[]> {
   return sanityFetchList<SanityCaseStudyCard>(
@@ -461,6 +781,23 @@ export async function getCareersPage(): Promise<SanityCareersPage | null> {
     }`,
     {},
     ["careersPage"],
+  );
+}
+
+export async function getBlogPage(): Promise<SanityBlogPage | null> {
+  return sanityFetch(
+    `*[_type == "blogPage" && _id == "blogPage"][0] {
+      kicker,
+      heading,
+      description,
+      newsletterPlaceholder,
+      newsletterButtonText,
+      newsletterIdleText,
+      newsletterSuccessText,
+      readMoreLabel
+    }`,
+    {},
+    ["blogPage"],
   );
 }
 
