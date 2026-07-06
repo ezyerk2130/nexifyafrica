@@ -8,9 +8,9 @@ import {
 } from "@/data/articles";
 import { normalizePathSegment } from "@/lib/slug";
 import {
-  getAllArticleSlugsFromSanity,
-  getArticleBySlugFromSanity,
-  getRelatedArticlesFromSanity,
+  getAllArticleSlugsFromSanityResult,
+  getArticleBySlugFromSanityResult,
+  getRelatedArticlesFromSanityResult,
 } from "@/sanity/lib/queries";
 
 type ArticleRouteProps = {
@@ -18,9 +18,8 @@ type ArticleRouteProps = {
 };
 
 export async function generateStaticParams() {
-  const sanitySlugs = await getAllArticleSlugsFromSanity().catch(() => []);
-  const localSlugs = getAllArticleSlugs();
-  const allSlugs = Array.from(new Set([...sanitySlugs, ...localSlugs]));
+  const sanitySlugs = await getAllArticleSlugsFromSanityResult();
+  const allSlugs = sanitySlugs.ok ? sanitySlugs.data : getAllArticleSlugs();
   return allSlugs.map((slug) => ({ slug }));
 }
 
@@ -29,9 +28,10 @@ export async function generateMetadata({
 }: ArticleRouteProps): Promise<Metadata> {
   const { slug } = await params;
   const pathSegment = normalizePathSegment(slug);
-  const article =
-    (await getArticleBySlugFromSanity(slug).catch(() => null)) ??
-    getArticleBySlug(pathSegment);
+  const sanityArticle = await getArticleBySlugFromSanityResult(slug);
+  const article = sanityArticle.ok
+    ? sanityArticle.data
+    : getArticleBySlug(pathSegment);
 
   if (!article) {
     notFound();
@@ -61,18 +61,20 @@ export async function generateMetadata({
 export default async function ArticleRoute({ params }: ArticleRouteProps) {
   const { slug } = await params;
   const pathSegment = normalizePathSegment(slug);
-  const sanityArticle = await getArticleBySlugFromSanity(slug).catch(() => null);
-  const article = sanityArticle ?? getArticleBySlug(pathSegment);
+  const sanityArticle = await getArticleBySlugFromSanityResult(slug);
+  const article = sanityArticle.ok
+    ? sanityArticle.data
+    : getArticleBySlug(pathSegment);
 
   if (!article) {
     notFound();
   }
 
-  const sanityRelated = sanityArticle
-    ? await getRelatedArticlesFromSanity(article.slug).catch(() => [])
-    : [];
-  const relatedArticles = sanityRelated.length
-    ? sanityRelated
+  const sanityRelated = sanityArticle.ok
+    ? await getRelatedArticlesFromSanityResult(article.slug)
+    : null;
+  const relatedArticles = sanityRelated?.ok
+    ? sanityRelated.data
     : getRelatedArticles(article.slug);
 
   return (

@@ -55,6 +55,22 @@ async function sanityFetchList<T>(
   }
 }
 
+export type SanityLoadResult<T> =
+  | { ok: true; data: T }
+  | { ok: false; data: null; error: unknown };
+
+async function sanityFetchResult<T>(
+  query: string,
+  params: Record<string, unknown> = {},
+  tags: string[] = [],
+): Promise<SanityLoadResult<T>> {
+  try {
+    return { ok: true, data: await sanityFetch<T>(query, params, tags) };
+  } catch (error) {
+    return { ok: false, data: null, error };
+  }
+}
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type SanityImageRef = {
@@ -520,24 +536,54 @@ const CASE_STUDY_DETAIL_FIELDS = `
   sections[] { ${CASE_STUDY_SECTION_FIELDS} }
 `;
 
-export async function getArticleSummariesFromSanity(): Promise<ArticleSummary[]> {
-  const results = await sanityFetchList<SanityArticle>(
+export async function getArticleSummariesFromSanityResult(): Promise<
+  SanityLoadResult<ArticleSummary[]>
+> {
+  const result = await sanityFetchResult<SanityArticle[]>(
     `*[_type == "article"] | order(featured desc, publishedAt desc, _createdAt desc) { ${ARTICLE_CARD_FIELDS} }`,
     {},
     ["article"],
   );
-  return results
-    .map(toArticleSummary)
-    .filter((article): article is ArticleSummary => article !== null);
+
+  if (!result.ok) return result;
+
+  const articles = Array.isArray(result.data) ? result.data : [];
+  return {
+    ok: true,
+    data: articles
+      .map(toArticleSummary)
+      .filter((article): article is ArticleSummary => article !== null),
+  };
 }
 
-export async function getAllArticleSlugsFromSanity(): Promise<string[]> {
-  const results = await sanityFetchList<SanityArticle>(
+export async function getArticleSummariesFromSanity(): Promise<ArticleSummary[]> {
+  const result = await getArticleSummariesFromSanityResult();
+  if (!result.ok) throw result.error;
+  return result.data;
+}
+
+export async function getAllArticleSlugsFromSanityResult(): Promise<
+  SanityLoadResult<string[]>
+> {
+  const result = await sanityFetchResult<SanityArticle[]>(
     `*[_type == "article"] { _id, title, slug }`,
     {},
     ["article"],
   );
-  return results.map(articleSlugFromSanity).filter(Boolean);
+
+  if (!result.ok) return result;
+
+  const articles = Array.isArray(result.data) ? result.data : [];
+  return {
+    ok: true,
+    data: articles.map(articleSlugFromSanity).filter(Boolean),
+  };
+}
+
+export async function getAllArticleSlugsFromSanity(): Promise<string[]> {
+  const result = await getAllArticleSlugsFromSanityResult();
+  if (!result.ok) throw result.error;
+  return result.data;
 }
 
 function uniqueArticleSlugCandidates(slug: string): string[] {
@@ -547,48 +593,80 @@ function uniqueArticleSlugCandidates(slug: string): string[] {
   return Array.from(new Set([slug, decoded, encoded, normalized])).filter(Boolean);
 }
 
-export async function getArticleBySlugFromSanity(
+export async function getArticleBySlugFromSanityResult(
   slug: string,
-): Promise<ArticleDetail | null> {
+): Promise<SanityLoadResult<ArticleDetail | null>> {
   const slugCandidates = uniqueArticleSlugCandidates(slug);
 
-  const result = await sanityFetch<SanityArticle | null>(
+  const result = await sanityFetchResult<SanityArticle | null>(
     `*[_type == "article" && slug.current in $slugs][0] { ${ARTICLE_DETAIL_FIELDS} }`,
     { slugs: slugCandidates },
     ["article"],
   );
-  if (result) return toArticleDetail(result);
+
+  if (!result.ok) return result;
+  if (result.data) {
+    return { ok: true, data: toArticleDetail(result.data) };
+  }
 
   const normalizedPathSegment = articlePathSegment(slug);
-  const fallbackResults = await sanityFetchList<SanityArticle>(
+  const fallbackResult = await sanityFetchResult<SanityArticle[]>(
     `*[_type == "article"] | order(featured desc, publishedAt desc, _createdAt desc) { ${ARTICLE_DETAIL_FIELDS} }`,
     {},
     ["article"],
   );
 
+  if (!fallbackResult.ok) return fallbackResult;
+
+  const fallbackArticles = Array.isArray(fallbackResult.data)
+    ? fallbackResult.data
+    : [];
   const matchedArticle =
-    fallbackResults.find((article) =>
+    fallbackArticles.find((article) =>
       sanityArticleMatchesPath(article, normalizedPathSegment),
     ) ?? null;
 
-  return matchedArticle ? toArticleDetail(matchedArticle) : null;
+  return { ok: true, data: matchedArticle ? toArticleDetail(matchedArticle) : null };
+}
+
+export async function getArticleBySlugFromSanity(
+  slug: string,
+): Promise<ArticleDetail | null> {
+  const result = await getArticleBySlugFromSanityResult(slug);
+  if (!result.ok) throw result.error;
+  return result.data;
+}
+
+export async function getRelatedArticlesFromSanityResult(
+  slug: string,
+  limit = 3,
+): Promise<SanityLoadResult<ArticleSummary[]>> {
+  const slugCandidates = uniqueArticleSlugCandidates(slug);
+  const result = await sanityFetchResult<SanityArticle[]>(
+    `*[_type == "article" && !(slug.current in $slugs)] | order(featured desc, publishedAt desc, _createdAt desc) { ${ARTICLE_CARD_FIELDS} }`,
+    { slugs: slugCandidates },
+    ["article"],
+  );
+
+  if (!result.ok) return result;
+
+  const articles = Array.isArray(result.data) ? result.data : [];
+  return {
+    ok: true,
+    data: articles
+      .map(toArticleSummary)
+      .filter((article): article is ArticleSummary => article !== null)
+      .slice(0, limit),
+  };
 }
 
 export async function getRelatedArticlesFromSanity(
   slug: string,
   limit = 3,
 ): Promise<ArticleSummary[]> {
-  const slugCandidates = uniqueArticleSlugCandidates(slug);
-  const results = await sanityFetchList<SanityArticle>(
-    `*[_type == "article" && !(slug.current in $slugs)] | order(featured desc, publishedAt desc, _createdAt desc) { ${ARTICLE_CARD_FIELDS} }`,
-    { slugs: slugCandidates },
-    ["article"],
-  );
-
-  return results
-    .map(toArticleSummary)
-    .filter((article): article is ArticleSummary => article !== null)
-    .slice(0, limit);
+  const result = await getRelatedArticlesFromSanityResult(slug, limit);
+  if (!result.ok) throw result.error;
+  return result.data;
 }
 
 export async function getCaseStudyCards(): Promise<SanityCaseStudyCard[]> {

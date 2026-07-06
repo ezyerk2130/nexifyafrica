@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, useRef, useState } from "react";
+import { useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Footer from "@/components/Footer";
@@ -12,7 +12,7 @@ import {
 } from "@/data/articles";
 import { useBatchReveal } from "@/hooks/useBatchReveal";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
-import { gsap, useGSAP } from "@/lib/gsap";
+import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsap";
 
 function ArrowIcon({ className = "" }: { className?: string }) {
   return (
@@ -29,33 +29,6 @@ function ArrowIcon({ className = "" }: { className?: string }) {
         d="M3.5 8H12.5M12.5 8L8.75 4.25M12.5 8L8.75 11.75"
         stroke="currentColor"
         strokeWidth="1.4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function MailIcon() {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 16 16"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-    >
-      <path
-        d="M2.75 4.25H13.25V11.75H2.75V4.25Z"
-        stroke="currentColor"
-        strokeWidth="1.2"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M3 4.5L8 8.35L13 4.5"
-        stroke="currentColor"
-        strokeWidth="1.2"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
@@ -85,57 +58,6 @@ const DEFAULT_BLOG_PAGE_SETTINGS: BlogPageSettings = {
   newsletterSuccessText: "Thanks. The next Nexify note is on its way.",
   readMoreLabel: "Read More",
 };
-
-function NewsletterForm({
-  compact = false,
-  settings,
-}: {
-  compact?: boolean;
-  settings: BlogPageSettings;
-}) {
-  const [subscribed, setSubscribed] = useState(false);
-
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setSubscribed(true);
-  };
-
-  return (
-    <div
-      className={compact ? "articles-newsletter is-compact" : "articles-newsletter"}
-    >
-      <form onSubmit={handleSubmit} className="articles-newsletter-form">
-        <label
-          className="sr-only"
-          htmlFor={compact ? "article-email-compact" : "article-email"}
-        >
-          Email address
-        </label>
-        <div className="articles-newsletter-field">
-          <span className="articles-newsletter-icon">
-            <MailIcon />
-          </span>
-          <input
-            id={compact ? "article-email-compact" : "article-email"}
-            type="email"
-            required
-            placeholder={settings.newsletterPlaceholder}
-            className="articles-newsletter-input"
-          />
-        </div>
-        <button type="submit" className="articles-newsletter-button">
-          <span>{settings.newsletterButtonText}</span>
-          <ArrowIcon />
-        </button>
-      </form>
-      <p className="articles-newsletter-status" aria-live="polite">
-        {subscribed
-          ? settings.newsletterSuccessText
-          : settings.newsletterIdleText}
-      </p>
-    </div>
-  );
-}
 
 function ArticleCard({
   article,
@@ -232,9 +154,14 @@ export default function ArticlesPage({
         ".articles-hero-reveal",
         page,
       );
+      const cardImages = gsap.utils.toArray<HTMLElement>(
+        ".articles-card-image",
+        page,
+      );
 
       const setSettledState = () => {
         gsap.set(heroItems, { autoAlpha: 1, y: 0 });
+        gsap.set(cardImages, { "--articles-card-image-y": "0px" });
       };
 
       if (prefersReducedMotion) {
@@ -255,6 +182,40 @@ export default function ArticlesPage({
           },
         );
 
+        const mm = gsap.matchMedia();
+
+        mm.add("(min-width: 1024px)", () => {
+          cardImages.forEach((image, index) => {
+            const direction = index % 2 === 0 ? 1 : -1;
+
+            gsap.fromTo(
+              image,
+              { "--articles-card-image-y": `${-8 * direction}px` },
+              {
+                "--articles-card-image-y": `${8 * direction}px`,
+                ease: "none",
+                scrollTrigger: {
+                  trigger: image.closest(".articles-card") ?? image,
+                  start: "top bottom",
+                  end: "bottom top",
+                  scrub: 0.8,
+                },
+              },
+            );
+          });
+
+          const refreshFrame = window.requestAnimationFrame(() => {
+            ScrollTrigger.refresh();
+          });
+
+          return () => {
+            window.cancelAnimationFrame(refreshFrame);
+          };
+        });
+
+        return () => {
+          mm.revert();
+        };
       } catch (error) {
         if (process.env.NODE_ENV === "development") {
           console.warn("[ArticlesPage] Animation unavailable:", error);
@@ -285,42 +246,42 @@ export default function ArticlesPage({
         <SiteNav variant="light" className="articles-site-nav" />
       </div>
       <main ref={pageRef} className="articles-page">
-      <section className="articles-hero" aria-labelledby="articles-heading">
-        <div className="articles-hero-inner">
-          <p className="articles-kicker articles-hero-reveal">
-            <span aria-hidden="true" />
-            {settings.kicker}
-          </p>
-          <h1 id="articles-heading" className="articles-hero-title articles-hero-reveal">
-            {settings.heading}
-          </h1>
-          <p className="articles-hero-copy articles-hero-reveal">
-            {settings.description}
-          </p>
-          <div className="articles-hero-reveal">
-            <NewsletterForm settings={settings} />
+        <section className="articles-hero" aria-labelledby="articles-heading">
+          <div className="articles-hero-inner">
+            <h1
+              id="articles-heading"
+              className="articles-hero-title articles-hero-reveal"
+            >
+              {settings.heading}
+            </h1>
+            <p className="articles-hero-copy articles-hero-reveal">
+              {settings.description}
+            </p>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section ref={indexRef} className="articles-index" aria-labelledby="articles-index-heading">
-        <div className="articles-index-inner">
-          <h2 id="articles-index-heading" className="sr-only">
-            Latest articles
-          </h2>
+        <section
+          ref={indexRef}
+          className="articles-index"
+          aria-labelledby="articles-index-heading"
+        >
+          <div className="articles-index-inner">
+            <h2 id="articles-index-heading" className="sr-only">
+              Latest articles
+            </h2>
 
-          <div className="articles-grid" aria-label="Latest articles">
-            {articles.map((article, index) => (
-              <ArticleCard
-                key={article.slug}
-                article={article}
-                index={index}
-                readMoreLabel={settings.readMoreLabel}
-              />
-            ))}
+            <div className="articles-grid" aria-label="Latest articles">
+              {articles.map((article, index) => (
+                <ArticleCard
+                  key={article.slug}
+                  article={article}
+                  index={index}
+                  readMoreLabel={settings.readMoreLabel}
+                />
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
       </main>
       <Footer />
     </>

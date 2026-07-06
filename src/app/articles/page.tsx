@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import ArticlesPage from "@/components/ArticlesPage";
 import { ARTICLES } from "@/data/articles";
 import {
-  getArticleSummariesFromSanity,
+  getArticleSummariesFromSanityResult,
   getBlogPage,
 } from "@/sanity/lib/queries";
 
@@ -13,11 +13,11 @@ export const metadata: Metadata = {
 };
 
 export default async function ArticlesRoute() {
-  const [sanityArticles, blogPage] = await Promise.all([
-    getArticleSummariesFromSanity().catch(() => []),
+  const [articleResult, blogPage] = await Promise.all([
+    getArticleSummariesFromSanityResult(),
     getBlogPage().catch(() => null),
   ]);
-  const articles = sanityArticles.length > 0 ? sanityArticles : ARTICLES;
+  const articles = articleResult.ok ? articleResult.data : ARTICLES;
 
   return <ArticlesPage articles={articles} settings={blogPage} />;
 }

@@ -1,6 +1,9 @@
 import type { MetadataRoute } from "next";
 import { SITE_ROUTES } from "@/config/navigation";
-import { getAllCaseStudySlugsFromSanity } from "@/sanity/lib/queries";
+import {
+  getAllArticleSlugsFromSanityResult,
+  getAllCaseStudySlugsFromSanity,
+} from "@/sanity/lib/queries";
 import { getAllCaseStudySlugs } from "@/data/caseStudies";
 import { getAllArticleSlugs } from "@/data/articles";
 
@@ -21,7 +24,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified,
   }));
 
-  const articleEntries = getAllArticleSlugs().map((slug) => ({
+  const sanityArticleSlugs = await getAllArticleSlugsFromSanityResult();
+  const articleSlugs = sanityArticleSlugs.ok
+    ? sanityArticleSlugs.data
+    : getAllArticleSlugs();
+
+  const articleEntries = articleSlugs.map((slug) => ({
     url: `${baseUrl}/articles/${slug}`,
     lastModified,
   }));
