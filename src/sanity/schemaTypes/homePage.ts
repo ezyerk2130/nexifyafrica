@@ -36,14 +36,14 @@ export const homePageType = defineType({
       name: "heroCtaText",
       title: "Hero CTA Button Text",
       type: "string",
-      initialValue: "Our work",
+      initialValue: "Contact us today",
       group: "hero",
     }),
     defineField({
       name: "heroCtaHref",
       title: "Hero CTA Button Link",
       type: "string",
-      initialValue: "#work",
+      initialValue: "/contact",
       group: "hero",
     }),
 

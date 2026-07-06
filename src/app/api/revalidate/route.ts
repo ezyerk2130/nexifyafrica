@@ -16,6 +16,7 @@ const VALID_TAGS = [
   "manifestoPage",
   "teamPage",
   "contactPage",
+  "contactSubmission",
   "careersPage",
 ] as const;
 

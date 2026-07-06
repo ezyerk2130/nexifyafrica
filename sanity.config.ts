@@ -41,6 +41,7 @@ export default defineConfig({
             S.documentTypeListItem("faqItem").title("FAQ Items"),
             S.documentTypeListItem("principle").title("Principles"),
             S.documentTypeListItem("teamMember").title("Team Members"),
+            S.documentTypeListItem("contactSubmission").title("Contact Form Submissions"),
             S.divider(),
             // Singletons
             ...SINGLETONS.map((typeName) =>

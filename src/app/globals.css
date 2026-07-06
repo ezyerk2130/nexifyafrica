@@ -1601,6 +1601,38 @@ html.lenis body {
   resize: vertical;
 }
 
+.contact-honeypot {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.contact-submit-button {
+  width: 100%;
+  align-self: stretch;
+  justify-content: center;
+}
+
+.contact-form-message {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.35;
+  color: #003b8c;
+}
+
+.contact-form-message--failed {
+  color: #b42318;
+}
+
+@media (min-width: 640px) {
+  .contact-submit-button {
+    width: fit-content;
+    align-self: flex-start;
+  }
+}
+
 .contact-details {
   display: flex;
   flex-direction: column;

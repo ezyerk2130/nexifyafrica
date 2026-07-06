@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { FormEvent, useState } from "react";
+import { type FormEvent, useState } from "react";
 import ContactHero from "@/components/ContactHero";
 import ContactPhoneField from "@/components/ContactPhoneField";
 import Footer from "@/components/Footer";
@@ -23,6 +23,8 @@ type ContactForm = {
   submitText?: string;
   submitSentText?: string;
 };
+
+type SubmitStatus = "idle" | "submitting" | "succeeded" | "failed";
 
 const DEFAULT_FORM: Required<ContactForm> = {
   nameLabel: "Name",
@@ -95,11 +97,42 @@ export default function ContactPage({ heroLines, heroRevealLines, visual, detail
   const VISUAL = visual ?? CONTACT_VISUAL;
   const DETAILS = details ?? CONTACT_DETAILS;
   const FORM = { ...DEFAULT_FORM, ...(form ?? {}) };
-  const [submitted, setSubmitted] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<SubmitStatus>("idle");
+  const [formMessage, setFormMessage] = useState("");
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setSubmitted(true);
+
+    const formElement = event.currentTarget;
+
+    if (!formElement.reportValidity()) return;
+
+    setSubmitStatus("submitting");
+    setFormMessage("");
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        body: new FormData(formElement),
+      });
+      const result = (await response.json().catch(() => null)) as {
+        message?: string;
+      } | null;
+
+      if (!response.ok) {
+        throw new Error(result?.message ?? "We could not send your message right now.");
+      }
+
+      setSubmitStatus("succeeded");
+      setFormMessage(result?.message ?? "Message sent.");
+    } catch (error) {
+      setSubmitStatus("failed");
+      setFormMessage(
+        error instanceof Error
+          ? error.message
+          : "We could not send your message right now. Please try again.",
+      );
+    }
   };
 
   return (
@@ -126,6 +159,16 @@ export default function ContactPage({ heroLines, heroRevealLines, visual, detail
 
           <div className="contact-panel">
             <form className="contact-form" onSubmit={handleSubmit} noValidate>
+              <label className="contact-honeypot" aria-hidden="true">
+                Website
+                <input
+                  type="text"
+                  name="website"
+                  tabIndex={-1}
+                  autoComplete="off"
+                />
+              </label>
+
               <div className="contact-form-row">
                 <label className="contact-field">
                   <span className="contact-label">{FORM.nameLabel}</span>
@@ -178,11 +221,24 @@ export default function ContactPage({ heroLines, heroRevealLines, visual, detail
 
               <button
                 type="submit"
-                className="site-button site-button--blue self-start"
-                disabled={submitted}
+                className="site-button site-button--blue contact-submit-button"
+                disabled={submitStatus === "submitting" || submitStatus === "succeeded"}
               >
-                {submitted ? FORM.submitSentText : FORM.submitText}
+                {submitStatus === "submitting"
+                  ? "Sending..."
+                  : submitStatus === "succeeded"
+                    ? FORM.submitSentText
+                    : FORM.submitText}
               </button>
+
+              {formMessage ? (
+                <p
+                  className={`contact-form-message contact-form-message--${submitStatus}`}
+                  aria-live="polite"
+                >
+                  {formMessage}
+                </p>
+              ) : null}
             </form>
 
             <dl className="contact-details">
